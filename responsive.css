@@ -938,9 +938,18 @@
      releases at its own wrapper's end, so they never overlap. */
   .r-news-grid {
     display: block !important;
-    /* The pinned card covers this while it scrolls, so it reads as travel
-       rather than empty space. */
-    padding-bottom: 34vh !important;
+    /* Keep the z-index ladder below inside this element. Without a
+       stacking context of its own, the cards' z-indexes are resolved
+       against the page root and a pinned card can paint over neighbouring
+       sections instead of only over its siblings. */
+    isolation: isolate;
+    position: relative;
+    z-index: 0;
+    /* No trailing padding. A sticky card's travel comes from whatever
+       follows it inside the same containing block, so cards 1 and 2 are
+       held up by the height of the cards after them — the deck needs no
+       manufactured space at the end. */
+    padding-bottom: 0 !important;
   }
   .r-news-stack { display: contents; }
 
@@ -958,9 +967,31 @@
   }
   /* Stepped offsets leave a sliver of each buried card visible. */
   .r-news-grid [data-news-card]:nth-of-type(1) { top: 78px; }
-  .r-news-stack:nth-child(1) [data-news-card] { top: 78px; }
-  .r-news-stack:nth-child(2) [data-news-card] { top: 94px; }
-  .r-news-stack:nth-child(3) [data-news-card] { top: 110px; }
+  /* The z-index ladder is what makes the deck read: each card must paint
+     over the one before it. Without it a later card can land behind an
+     earlier one, showing as text bleeding through from underneath. */
+  .r-news-stack:nth-child(1) [data-news-card] { top: 78px; z-index: 1; }
+  .r-news-stack:nth-child(2) [data-news-card] { top: 94px; z-index: 2; }
+  .r-news-stack:nth-child(3) [data-news-card] { top: 110px; z-index: 3; }
+  /* The last card is the one that would need padding beneath it to have
+     anywhere to travel. Leaving it in normal flow removes that need
+     entirely: it simply rides up over the two pinned cards and completes
+     the stack, and the section ends level with it. */
+  .r-news-stack:last-child [data-news-card] {
+    /* relative, not static: it stays in normal flow and needs no travel
+       space, but remains a positioned element so its z-index applies. As
+       static it painted beneath the pinned cards above it, which showed
+       as their text bleeding through. */
+    position: relative;
+    /* top must be reset: on a relatively positioned element it offsets the
+       card visually without adding to layout height, so the 110px sticky
+       offset pushed it out of the section and over the one below. */
+    top: auto;
+    margin-bottom: 0;
+  }
+  /* Close the section on the same gap it opens with (the divider-to-first-card
+     distance), rather than the section's larger desktop padding. */
+  #news { padding-bottom: clamp(34px, 5vh, 54px) !important; }
 
   /* Image flush to the card's top and sides; text inset instead. */
   .r-news-grid [data-news-card] > div:first-child { width: 100%; }

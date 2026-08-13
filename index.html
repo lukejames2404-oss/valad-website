@@ -34,7 +34,7 @@
   @keyframes cueDrift{0%{transform:translateY(0);opacity:.1}45%{transform:translateY(9px);opacity:.8}100%{transform:translateY(18px);opacity:0}}
 </style>
 <link rel="stylesheet" href="valad-system.css">
-<link rel="stylesheet" href="responsive.css?v=16">
+<link rel="stylesheet" href="responsive.css?v=22">
 <script defer src="./header-scroll.js"></script>
 </helmet>
 
@@ -729,6 +729,17 @@ class Component extends DCLogic {
     };
     requestAnimationFrame(step);
   }
+  // Style writes are only cheap if they actually change something; assigning
+  // an identical value still dirties the element for style recalc. Cache the
+  // last value per property so the 60 image writes per frame collapse to the
+  // handful that really moved.
+  setS(el, prop, val) {
+    if (!el) return;
+    const k = "_s_" + prop;
+    if (el[k] === val) return;
+    el[k] = val;
+    el.style[prop] = val;
+  }
   sectors() {
     const scroll = this.$scroll;
     const mark = this.$mark;
@@ -736,13 +747,24 @@ class Component extends DCLogic {
     const clamp = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
     const ease = (x) => { const c = clamp(x); return c * c * (3 - 2 * c); };
     const rect = scroll.getBoundingClientRect();
+    // This runs on every scroll frame and writes ~80 styles. The section is
+    // 6,000px of a 16,000px page, so for most of the document that work is
+    // thrown away. Settle once on leaving, then skip until it returns —
+    // this was the bulk of the scroll cost on a phone.
+    const near = rect.bottom > -200 && rect.top < window.innerHeight + 200;
+    if (!near) {
+      if (this._sectorsIdle) return;
+      this._sectorsIdle = true;
+    } else {
+      this._sectorsIdle = false;
+    }
     const total = Math.max(1, scroll.offsetHeight - window.innerHeight);
     const p = clamp(-rect.top / total);
     const open = ease(p / 0.05);
     const close = ease((p - 0.90) / 0.10);
     const s = Math.max(0, Math.min(5, (p - 0.03) / 0.174));
     const scale = (0.88 + 0.12 * open) * (1 - 0.26 * close);
-    mark.style.opacity = ease(p / 0.015).toFixed(3);
+    this.setS(mark, "opacity", ease(p / 0.015).toFixed(3));
     // The mark's settled height scales with the viewport faster than the space
     // under it does, so on short desktop windows it closes on the finale
     // caption — at 1440x720 its bottom edge lands 3px above "One platform."
@@ -756,8 +778,8 @@ class Component extends DCLogic {
       const el = this.$pieces[i];
       if (!el) return;
       const k = ease((s - pc[2] + 0.62) / 0.62);
-      el.style.opacity = ease((s - pc[2] + 0.62) / 0.22).toFixed(3);
-      el.style.transform = "translate(" + (pc[0] * (1 - k)).toFixed(2) + "%," + (pc[1] * (1 - k)).toFixed(2) + "%)";
+      this.setS(el, "opacity", ease((s - pc[2] + 0.62) / 0.22).toFixed(3));
+      this.setS(el, "transform", "translate(" + (pc[0] * (1 - k)).toFixed(2) + "%," + (pc[1] * (1 - k)).toFixed(2) + "%)");
     });
     const w = [];
     let sum = 0;
@@ -770,8 +792,8 @@ class Component extends DCLogic {
       const op = ((sum > 0 ? w[i] / sum : 0) * (1 - close)).toFixed(3);
       const drift = (-10 * clamp(s - i)).toFixed(1);
       this.$simg[i].forEach((im) => {
-        im.style.opacity = op;
-        im.style.transform = "translateY(" + drift + "px)";
+        this.setS(im, "opacity", op);
+        this.setS(im, "transform", "translateY(" + drift + "px)");
       });
       const tw = (ease((s - i) / 0.16) * ease((i + 1 - s) / 0.16) * (1 - close) * open).toFixed(3);
       const nm = this.$sname[i];
