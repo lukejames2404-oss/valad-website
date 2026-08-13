@@ -64,9 +64,22 @@
       this.style.position = "relative";
       this.style.width = "100%";
       this.style.height = "100%";
-      this.render();
+      // Same deferral as offices-map.js. Contact is short enough that the map
+      // is on screen at load, so this does not save the work — but an observer
+      // callback lands after first paint, which keeps ~590ms of library load
+      // and topology parsing off the critical path. The page becomes
+      // interactive first and the map fills in a moment later.
+      if (!("IntersectionObserver" in window)) return this.render();
+      this._bootIO = new IntersectionObserver((entries) => {
+        if (!entries[entries.length - 1].isIntersecting) return;
+        this._bootIO.disconnect();
+        this._bootIO = null;
+        this.render();
+      }, { rootMargin: "150% 0px" });
+      this._bootIO.observe(this);
     }
     disconnectedCallback() {
+      if (this._bootIO) { this._bootIO.disconnect(); this._bootIO = null; }
       if (this._loop) cancelAnimationFrame(this._loop);
       if (this._onResize) window.removeEventListener("resize", this._onResize);
     }

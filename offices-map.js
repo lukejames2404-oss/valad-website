@@ -64,9 +64,24 @@
       this.style.position = "relative";
       this.style.width = "100%";
       this.style.height = "100%";
-      this.render();
+      // Building the map costs two CDN libraries, a 739KB country topology and
+      // a pair of generated noise canvases — about 450ms of blocked main thread
+      // on a desktop, several times that on a phone. On the homepage the map
+      // sits thousands of pixels below the fold, so paying that at load froze
+      // the page at the exact moment a visitor started scrolling the hero.
+      // Hold the whole chain until the map is nearly in view; a viewport and a
+      // half of lead time is enough to have it drawn before it is reached.
+      if (!("IntersectionObserver" in window)) return this.render();
+      this._bootIO = new IntersectionObserver((entries) => {
+        if (!entries[entries.length - 1].isIntersecting) return;
+        this._bootIO.disconnect();
+        this._bootIO = null;
+        this.render();
+      }, { rootMargin: "150% 0px" });
+      this._bootIO.observe(this);
     }
     disconnectedCallback() {
+      if (this._bootIO) { this._bootIO.disconnect(); this._bootIO = null; }
       if (this._loop) cancelAnimationFrame(this._loop);
       if (this._onResize) window.removeEventListener("resize", this._onResize);
     }

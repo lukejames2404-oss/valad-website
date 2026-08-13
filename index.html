@@ -39,7 +39,7 @@
 </helmet>
 
 <header id="siteHeader" class="r-header r-header--light r-header--hero-dark" style="position:fixed;top:0;left:0;width:100%;z-index:60;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:stretch;padding:0 var(--valad-gutter);height:var(--valad-header-h);background:rgba(237,236,232,0);transition:background-color 420ms ease,box-shadow 420ms ease,backdrop-filter 420ms ease">
-  <a href="#top" class="r-logo" style="display:flex;align-items:center;"><img decoding="async" src="assets/logo-valad.png" alt="Valad Asset Management" style="height:22px;width:auto;display:block"></a>
+  <a href="#top" class="r-logo" style="display:flex;align-items:center;"><img decoding="async" src="assets/logo-valad-340.png" alt="Valad Asset Management" style="height:22px;width:auto;display:block"></a>
   <input type="checkbox" id="rnav-home" class="r-navtoggle" tabindex="-1">
   <label for="rnav-home" class="r-navbtn" aria-label="Toggle navigation menu"><span></span><span></span><span></span></label>
   <nav class="r-nav" style="display:flex;align-items:center;justify-content:flex-start;gap:32px;padding-left:50px;white-space:nowrap">
@@ -482,7 +482,7 @@
 
   <sc-if value="{{ showMarquee }}" hint-placeholder-val="{{ true }}">
     <div style="margin-top:clamp(70px,12vh,150px)">
-      <img loading="lazy" decoding="async" src="assets/closing-band.jpg" alt="" style="width:100%;height:clamp(150px,20vh,260px);object-fit:cover;display:block">
+      <img loading="lazy" decoding="async" src="assets/closing-band-1400.jpg" alt="" style="width:100%;height:clamp(150px,20vh,260px);object-fit:cover;display:block">
     </div>
   </sc-if>
 
@@ -500,7 +500,7 @@
 
   <div class="r-foot-nav" style="margin-top:clamp(90px,13vh,130px);display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:clamp(28px,4vw,56px)">
     <div style="border-top:1px solid rgba(243,242,238,.22);padding-top:38px">
-      <img src="assets/logo-valad-light.png" alt="Valad" style="height:22px;width:auto;display:block">
+      <img src="assets/logo-valad-light-340.png" alt="Valad" style="height:22px;width:auto;display:block">
     </div>
     <div style="border-top:1px solid rgba(243,242,238,.22);padding-top:38px;display:flex;flex-direction:column;gap:18px">
       <div style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,242,238,.4)">Company</div>
@@ -843,7 +843,21 @@ class Component extends DCLogic {
     this.chainScroll();
     this.scrubHeadings();
     if (this.reduced) return;
-    if (this.$hero) this.$hero.style.transform = "translate3d(0," + (y * 0.14).toFixed(1) + "px,0)";
+    // The hero is the first screen of a ~16,000px page. Unbounded, this wrote a
+    // transform every frame to an image that has been off screen for 15,000px,
+    // and `will-change` held a full-viewport compositor layer for the whole
+    // document — on a phone that layer is the single most expensive thing the
+    // page leaves running. Settle it once on the way out, then leave it alone
+    // until the hero comes back.
+    if (this.$hero) {
+      const heroLive = y < window.innerHeight;
+      if (heroLive || this.heroLive) {
+        this.heroLive = heroLive;
+        const hy = heroLive ? y : window.innerHeight;
+        this.$hero.style.transform = "translate3d(0," + (hy * 0.14).toFixed(1) + "px,0)";
+        this.$hero.style.willChange = heroLive ? "transform" : "auto";
+      }
+    }
   }
   initRow() {
     const row = document.getElementById("chainRow");
