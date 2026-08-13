@@ -57,9 +57,12 @@
   /* Page gutter — the single value every section's horizontal padding uses.
      Overridden per breakpoint in responsive.css. */
   --valad-gutter: 80px;
-  /* One height at every width, as on valad.io: its bar is 24px of padding above
-     and below the 22px wordmark and never changes size between breakpoints. */
-  --valad-header-h: 70px;
+  /* Measured off valad.io: 24px of padding above and below a 46px inner row,
+     for 94px total. The row is 46px because the CTA pill sets it — the 22px
+     wordmark is centred inside it, not the thing that defines it. An earlier
+     note here read the row as 22px and landed on 70px, which is why the bar
+     sat 24px short. Mobile drops to 92px (see responsive.css section 0). */
+  --valad-header-h: 94px;
 
   --valad-ink: #151515;
   --valad-paper: #EDECE8;
@@ -126,7 +129,13 @@ html, body {
 .r-header--hero-dark:not(.r-header--solid) .r-logo img {
   filter: invert(1) brightness(1.7) !important;
 }
+/* valad.io sets the nav links to a 15px line-height, the same as their size, so
+   each link box is exactly as tall as the type. The links here carry no
+   line-height inline and so inherit `normal` (~18px), which pushed them off the
+   optical centre of the bar. The 8px of inline vertical padding stays — it is
+   hit area only and, in a centred flex row, moves nothing. */
 @media (min-width: 810px) {
+  .r-header .r-nav > a { line-height: 15px; }
   .r-header--hero-dark:not(.r-header--solid) .r-nav > a { color: #F7F5F0 !important; }
   .r-header--hero-invert-cta:not(.r-header--solid) a.r-cta,
   .r-header--hero-invert-cta:not(.r-header--solid) .r-cta > a {

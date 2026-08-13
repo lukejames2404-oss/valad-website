@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "valad-site",
-      "runtimeExecutable": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
-      "runtimeArgs": ["serve.py"],
+      "runtimeExecutable": "/opt/homebrew/bin/python3",
+      "runtimeArgs": ["/Users/silverlanedevelopments/Desktop/VAM WEBSITE/serve.py"],
       "port": 4173,
       "autoPort": true
     }

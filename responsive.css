@@ -37,14 +37,14 @@
    var(--valad-gutter) / var(--valad-header-h); re-pointing them here moves
    every section's horizontal padding at once.
 
-   Only the gutter moves. The bar holds one height at every width — see the
-   token in valad-system.css — so there is no header override here.
+   The bar holds 94px through desktop and tablet and comes down to 92px on
+   mobile, which is what valad.io measures at 390.
    -------------------------------------------------------------------------- */
 @media (max-width: 1199.98px) {
   :root { --valad-gutter: 40px; }
 }
 @media (max-width: 809.98px) {
-  :root { --valad-gutter: 20px; }
+  :root { --valad-gutter: 20px; --valad-header-h: 92px; }
 }
 
 
@@ -158,7 +158,8 @@
     justify-content: space-between !important;
     gap: 10px !important;
     height: var(--valad-header-h) !important;
-    padding: 0 var(--valad-gutter) !important;
+    padding: 24px var(--valad-gutter) !important;
+    box-sizing: border-box !important;
     z-index: 60 !important;
   }
   /* The bar is transparent over the hero here exactly as it is on desktop, so
@@ -374,11 +375,16 @@
   .r-tap { min-height: 44px; display: inline-flex !important; align-items: center; }
 }
 
-/* Footer — shared by all six pages ----------------------------------------- */
+/* Footer — shared by all six pages -----------------------------------------
+   valad.io runs a four-track grid here and spans its columns across two tracks
+   each, which lands the pair at 163px on a 350px inner width. Two equal tracks
+   with the same 24px column gap resolve to the identical 163px, so the simpler
+   track model is kept and only the gap is matched: 40px between rows, 24px
+   between columns. */
 @media (max-width: 1199.98px) {
-  .r-foot-nav { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 32px !important; }
+  .r-foot-nav { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 40px 24px !important; }
   .r-foot-nav > div:first-child { grid-column: 1 / -1; }
-  .r-foot-addr { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 28px !important; }
+  .r-foot-addr { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 40px 24px !important; }
 }
 @media (max-width: 809.98px) {
   .r-foot-nav > div, .r-foot-addr > div { padding-top: 24px !important; }
@@ -444,7 +450,10 @@
     padding: 0 !important;
     margin: 0 0 16px !important;
     text-align: left !important;
-    line-height: .98 !important;
+    /* valad.io holds one leading ratio at every width — 64/70.4 on desktop and
+       39/42.9 on mobile are both 1.10. This was .98, which is tighter than the
+       cap height, so the two hero lines closed up and nearly touched at 390. */
+    line-height: 1.1 !important;
   }
   [data-screen-label="Hero"] h1 span span { font-size: 39px !important; }
 
