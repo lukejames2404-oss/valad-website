@@ -1013,3 +1013,16 @@
   .r-news-grid [data-news-card][data-reveal] { transform: none !important; }
 }
 }
+
+/* Closing CTA band ----------------------------------------------------------
+   valad.io keeps 80px of side padding on this band at 810 even though its other
+   sections drop to 40, and the band grows from 632px to ~872px as the headline
+   wraps. Below 810 it comes in to the 20px gutter and 875px, with the headline
+   at 24px/33.6px -- the same 1.4 ratio it holds on desktop. */
+@media (max-width: 1199.98px) {
+  .r-cta-band { height: 872px; padding: 200px 80px; }
+}
+@media (max-width: 809.98px) {
+  .r-cta-band { height: 875px; padding: 200px var(--valad-gutter); }
+  .r-cta-band-head { font-size: 24px; line-height: 33.6px; max-width: 350px; }
+}

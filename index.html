@@ -481,8 +481,14 @@
   </div>
 
   <sc-if value="{{ showMarquee }}" hint-placeholder-val="{{ true }}">
-    <div style="margin-top:clamp(70px,12vh,150px)">
-      <img loading="lazy" decoding="async" src="assets/closing-band-1400.jpg" alt="" style="width:100%;height:clamp(150px,20vh,260px);object-fit:cover;display:block">
+    <div class="r-cta-band" style="margin-top:clamp(70px,12vh,150px)">
+      <img class="r-cta-band-img" loading="lazy" decoding="async" src="assets/cta-band.jpg" alt="">
+      <div class="r-cta-band-inner">
+        <p class="r-cta-band-head">Join our consortium of partners and unlock the full potential of your assets.</p>
+        <div class="r-cta-band-actions">
+          <a href="contact.html" class="r-cta-band-btn r-tap">Contact Us</a>
+        </div>
+      </div>
     </div>
   </sc-if>
 

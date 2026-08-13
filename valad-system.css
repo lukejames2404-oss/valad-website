@@ -220,3 +220,83 @@ select {
   margin-left: calc(var(--valad-gutter) * -1);
   margin-right: calc(var(--valad-gutter) * -1);
 }
+
+/* Closing CTA band ----------------------------------------------------------
+   Box metrics measured off valad.io: a 632px plate, `overflow: clip`, 200px of
+   vertical padding around a centred 232px stack -- 134px of headline, a 50px
+   gap, a 48px button row -- with the headline at 32px/44.8px in #141414.
+
+   valad.io fills that plate with four project renders, each held in a small box
+   and blown up with `transform: scale(3)`. Their boxes overlap the centred copy
+   on every reading, so the arrangement cannot be reproduced from geometry alone
+   and it is one narrow viewport from covering its own headline. This uses the
+   single-image form instead: one render at the size of the band with the copy
+   over it, which is the same plate, the same type and the same rhythm. The
+   scrim is #EDECE8 at 82% so the band still reads as valad.io's paper colour
+   with the render behind it, and the dark copy keeps its contrast. */
+.r-cta-band {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 632px;
+  padding: 200px var(--valad-gutter);
+  background: #EDECE8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.r-cta-band-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.r-cta-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(237, 236, 232, .82);
+}
+/* 232px of content in a 632px band: 134 of headline, a 50px gap, a 48px row. */
+.r-cta-band-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+  width: 100%;
+  max-width: 1265px;
+  text-align: center;
+}
+.r-cta-band-head {
+  margin: 0;
+  max-width: 404px;
+  font-family: var(--valad-font);
+  font-weight: 300;
+  font-size: 32px;
+  line-height: 44.8px;
+  letter-spacing: 0;
+  color: #141414;
+  text-wrap: pretty;
+}
+.r-cta-band-actions { display: flex; justify-content: center; gap: 4px; }
+.r-cta-band-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 22px;
+  border: 1px solid rgba(20, 20, 20, .28);
+  border-radius: 60px;
+  font-family: var(--valad-font);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: #141414;
+  transition: background-color 260ms ease, color 260ms ease;
+}
+.r-cta-band-btn:hover { background: #151515; color: #EDECE8; }
