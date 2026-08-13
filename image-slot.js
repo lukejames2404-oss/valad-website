@@ -91,7 +91,12 @@
 /* END USAGE */
 
 (() => {
-  const STATE_FILE = '.image-slots.state.json';
+  // Served sidecar is the non-dotted name: static hosts (Vercel, GitHub
+  // Pages, S3) do not serve files beginning with a dot, so the dotfile
+  // silently 404'd in production and every slot rendered empty. Writes
+  // still go to the dotfile so the local editor keeps its own copy.
+  const STATE_FILE = 'image-slots.state.json';
+  const WRITE_FILE = '.image-slots.state.json';
 
   // Unsplash terms require visible attribution wherever their photos
   // display, and every link back to unsplash.com must carry utm referral
@@ -217,14 +222,14 @@
     if (!loaded) return;
     const w = window.omelette && window.omelette.writeFile;
     if (!w) return;
-    try { Promise.resolve(w(STATE_FILE, JSON.stringify(slots))).catch(() => {}); } catch (e) {}
+    try { Promise.resolve(w(WRITE_FILE, JSON.stringify(slots))).catch(() => {}); } catch (e) {}
   }
   function save() {
     if (saving) { saveDirty = true; return; }
     const w = window.omelette && window.omelette.writeFile;
     if (!w) return;
     saving = true;
-    Promise.resolve(w(STATE_FILE, JSON.stringify(slots)))
+    Promise.resolve(w(WRITE_FILE, JSON.stringify(slots)))
       .catch(() => {})
       .then(() => { saving = false; if (saveDirty) { saveDirty = false; save(); } });
   }
@@ -530,6 +535,9 @@
       this._frame = root.querySelector('.frame');
       this._ring = root.querySelector('.ring');
       this._img = root.querySelector('.frame img');
+      // Slots sit mostly below the fold; defer fetch and decode so they
+      // cannot block first paint or stall scrolling on mobile.
+      if (this._img) { this._img.loading = 'lazy'; this._img.decoding = 'async'; }
       this._empty = root.querySelector('.empty');
       this._cap = root.querySelector('.cap');
       this._sub = root.querySelector('.sub');
@@ -1094,7 +1102,18 @@
       // data:image/ URLs from it. The `src` attribute is author-controlled
       // (Claude wrote it into the HTML) so it passes through unchanged.
       let stored = this.id ? getSlot(this.id) : this._local;
-      if (stored && stored.u && !/^data:image\//i.test(stored.u)) stored = null;
+      // The sidecar is agent-writable, so its value is not trusted: only a
+      // data:image/ URL, or a same-origin file inside assets/slots/, is
+      // rendered. The second form exists because inlining every image as
+      // base64 pushed the sidecar to 7MB, which every page then had to
+      // fetch and decode before a slot could paint. The pattern is
+      // deliberately tight — no scheme, no protocol-relative "//", no
+      // "..", a fixed directory, a safe filename charset and an image
+      // extension — so it cannot be pointed at another origin or a
+      // non-image the way an unrestricted URL could.
+      const SAFE_SLOT_SRC = /^assets\/slots\/[A-Za-z0-9._-]+\.(?:webp|jpe?g|png|avif)$/i;
+      if (stored && stored.u &&
+          !/^data:image\//i.test(stored.u) && !SAFE_SLOT_SRC.test(stored.u)) stored = null;
       const srcAttr = this.getAttribute('src') || '';
       this._userUrl = (stored && stored.u) || null;
       const url = this._userUrl || srcAttr;

@@ -23,3 +23,7 @@ LinkedIn_icon_circle.svg.webp
 pexels-nikola-sivkov*.jpg
 pexels-postiglioni*.jpg
 3d9dd147-*.png
+
+# Editor sidecar. The served copy is image-slots.state.json (no dot) —
+# static hosts do not serve dotfiles.
+.image-slots.state.json
