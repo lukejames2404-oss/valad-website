@@ -22,7 +22,7 @@
 <body>
 <x-dc>
 <helmet>
-<script src="image-slot.js?v=6"></script>
+<script src="image-slot.js?v=7"></script>
 <style>
   html,body{margin:0;padding:0;background:#EDECE8;scroll-behavior:smooth}
   *{box-sizing:border-box}
@@ -61,10 +61,10 @@
 <div id="valuesScroll" data-screen-label="Values" style="position:relative;height:480vh;background:#111110">
   <div style="position:sticky;top:0;left:0;width:100%;height:100vh;overflow:hidden">
     <img data-vimg="0" decoding="async" src="./pexels-megane-lefebvre-1257910819-235326-msopl9re-ddk7.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1; transition: opacity 900ms ease">
-    <img data-vimg="1" decoding="async" src="./pexels-eclipse-chasers-716719984-2672642-msoppnao-pdf7.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
-    <img data-vimg="2" decoding="async" src="./pexels-ian-panelo-10010675-msoptdyd-c6jq.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
-    <img data-vimg="3" decoding="async" src="./pexels-monique-van-melick-854247801-3540-msopvp2r-7gx5.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
-    <img data-vimg="4" decoding="async" src="./pexels-dimitri-shteizel-150599699-207565-msopzm3d-w937.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
+    <img data-vimg="1" decoding="async" data-src="./pexels-eclipse-chasers-716719984-2672642-msoppnao-pdf7.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
+    <img data-vimg="2" decoding="async" data-src="./pexels-ian-panelo-10010675-msoptdyd-c6jq.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
+    <img data-vimg="3" decoding="async" data-src="./pexels-monique-van-melick-854247801-3540-msopvp2r-7gx5.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
+    <img data-vimg="4" decoding="async" data-src="./pexels-dimitri-shteizel-150599699-207565-msopzm3d-w937.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms ease">
     <div style="position:absolute;inset:0;background:linear-gradient(200deg,rgba(10,10,9,.8) 0%,rgba(10,10,9,.32) 40%,rgba(10,10,9,.36) 60%,rgba(10,10,9,.86) 100%)"></div>
 
     <div class="r-val-names" style="position:absolute;left:var(--valad-gutter);top:40%;transform:translateY(-50%);display:flex;flex-direction:column;gap:clamp(6px,1.1vh,12px)">
@@ -251,6 +251,20 @@ class Component extends DCLogic {
     this.activeJourney = -1;
     this.$scroll = document.getElementById("valuesScroll");
     this.$vimg = [0, 1, 2, 3, 4].map((i) => document.querySelector('[data-vimg="' + i + '"]'));
+    const vs = document.getElementById("valuesScroll");
+    if (vs && "IntersectionObserver" in window) {
+      const warmVals = new IntersectionObserver((es) => {
+        es.forEach((e) => {
+          if (!e.isIntersecting) return;
+          [0, 1].forEach((i) => {
+            const v = this.$vimg[i];
+            if (v && !v.src) { const d = v.getAttribute("data-src"); if (d) v.src = d; }
+          });
+          warmVals.disconnect();
+        });
+      }, { rootMargin: "100% 0px" });
+      warmVals.observe(vs);
+    }
     this.$vname = [0, 1, 2, 3, 4].map((i) => document.querySelector('[data-vname="' + i + '"]'));
     this.$vquote = [0, 1, 2, 3, 4].map((i) => document.querySelector('[data-vquote="' + i + '"]'));
     this.$vcap = [0, 1, 2, 3, 4].map((i) => document.querySelector('[data-vcap="' + i + '"]'));
@@ -348,7 +362,17 @@ class Component extends DCLogic {
     this.activeValue = idx;
     for (let i = 0; i < 5; i++) {
       const active = i === idx;
-      if (this.$vimg[i]) this.$vimg[i].style.opacity = active ? "1" : "0";
+      if (this.$vimg[i]) {
+        // Five full-screen backgrounds is ~2.5MB, and only one shows at a
+        // time. Attach the active panel and the one after it; the rest stay
+        // unfetched until the scroll reaches them.
+        const v = this.$vimg[i];
+        if (!v.src && (active || i === idx + 1)) {
+          const d = v.getAttribute("data-src");
+          if (d) v.src = d;
+        }
+        v.style.opacity = active ? "1" : "0";
+      }
       if (this.$vname[i]) {
         // Colour alone marks the active value. valad.io ships a single Light
         // master and varies nothing but colour and size, so shifting weight
