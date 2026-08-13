@@ -22,9 +22,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-handler = functools.partial(Handler, directory=DIRECTORY)
-socketserver.TCPServer.allow_reuse_address = True
+class Server(socketserver.ThreadingTCPServer):
+    """A page here opens ~40 connections at once. TCPServer handles them one at
+    a time and drops the overflow, which surfaces as ERR_SOCKET_NOT_CONNECTED on
+    a random asset and looks exactly like a broken image path."""
 
-with socketserver.TCPServer(("127.0.0.1", PORT), handler) as httpd:
+    allow_reuse_address = True
+    daemon_threads = True
+
+
+handler = functools.partial(Handler, directory=DIRECTORY)
+
+with Server(("127.0.0.1", PORT), handler) as httpd:
     print(f"Valad site → http://127.0.0.1:{PORT}/")
     httpd.serve_forever()
