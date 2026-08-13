@@ -917,64 +917,32 @@
   .r-life > div:first-child { min-height: clamp(240px, 40vh, 380px) !important; }
 }
 
-/* ── News: stacked sticky cards on mobile ────────────────────────────────
-   Mirrors the scroll-stacking product cards on valad.io (each card pins
-   near the top and the next one rides up over it), recoloured into the
-   Valad light palette: grey cards on the section's white ground rather
-   than valad.io's near-black. Desktop keeps the plain three-up grid, so
-   this whole behaviour is scoped to the same <810px breakpoint the rest
-   of the mobile rules use.
-
-   The stack is pure CSS: siblings that are position:sticky with stepped
-   top offsets naturally overlap as the page scrolls, and the cards' own
-   height supplies the scroll distance — no wrapper elements and no JS.
-   Each card must be opaque, or the one beneath shows through. */
+/* ── News cards on mobile ────────────────────────────────────────────────
+   These were a scroll-stacked deck (position:sticky with stepped offsets),
+   mirroring valad.io's product cards. It measured correctly in every
+   emulator but rendered as a blank block on real iOS Safari, where the
+   section could not be scrolled past. A decorative effect is not worth a
+   section that does not render, so mobile now uses a plain vertical stack:
+   ordinary flow, no sticky, no negative margins, nothing that depends on
+   viewport-relative positioning. */
 @media (max-width: 809.98px) {
   .r-news-grid {
     display: flex !important;
     flex-direction: column;
-    gap: 18px !important;
-    /* Trailing room so each card has somewhere to stay pinned while the
-       ones after it ride up: a sticky item can only travel inside its
-       parent's box, so without slack here the stack never engages. The
-       grid carries an inline `padding:0 var(--valad-gutter)` shorthand,
-       which zeroes the bottom — !important is what outranks it. */
-    /* No trailing slack: the last card unpins as soon as it lands, which
-       keeps the gap under the deck equal to the gap above it. Cards 1 and 2
-       still stack — their sticky travel comes from the cards below them,
-       not from this padding. */
-    padding-bottom: 0 !important;
+    gap: 22px !important;
   }
   .r-news-grid [data-news-card] {
-    position: sticky;
     background: #EDECE8;
-    padding: 18px 18px 26px;
     border: 1px solid rgba(20, 20, 20, .10);
+    padding: 0 0 24px;
     gap: 16px !important;
-    /* Lifts each card off the one it covers so the stack reads as depth
-       rather than a flat recolour. */
-    box-shadow: 0 -8px 24px rgba(20, 20, 20, .06);
   }
-  /* Stepped offsets leave a sliver of every buried card visible — the
-     "deck" read. Even steps, so the exposed edges stay equal. */
-  /* The section's generous desktop bottom padding doubles up with the grid's
-     under a stacked deck, reading as dead space. Match the 41px above. */
-  #news { padding-bottom: clamp(34px, 5vh, 54px) !important; }
-  .r-news-grid [data-news-card]:nth-child(1) { top: 78px; }
-  .r-news-grid [data-news-card]:nth-child(2) { top: 96px; }
-  .r-news-grid [data-news-card]:nth-child(3) { top: 114px; }
-  /* The article image sits flush with the card's top and side edges — the
-     padding only applies below it, to the date and headline. Negative
-     margins pull it back out over the card's own padding. */
-  .r-news-grid [data-news-card] > div:first-child {
-    margin: -18px -18px 0;
-    /* The element carries an inline width:100%, which resolves against the
-       content box and so stops 18px short on each side once the negative
-       margins pull it outward. Add both gutters back. */
-    width: calc(100% + 36px) !important;
+  /* Article image sits flush to the card's top and side edges. The card has
+     no side padding, so the image needs no negative pull. */
+  .r-news-grid [data-news-card] > div:first-child { width: 100%; }
+  .r-news-grid [data-news-card] > :not(:first-child) {
+    padding-left: 18px;
+    padding-right: 18px;
   }
-  /* The card's own reveal transition animates transform; a sticky element
-     that is also transformed creates a containing block and stops pinning,
-     so the reveal is reduced to a fade here. */
-  .r-news-grid [data-news-card][data-reveal] { transform: none !important; }
+}
 }
