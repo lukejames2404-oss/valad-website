@@ -773,30 +773,10 @@
 
 /* Team carousel ------------------------------------------------------------ */
 @media (max-width: 809.98px) {
-  /* No horizontal rail on mobile. This row was the only overflow-x:auto
-     container on the site and it was the common factor in every reported
-     case of the team section not rendering on iOS — cards laid out
-     off-viewport sideways, which is fragile for reveal timing, intersection
-     and clipping alike. A plain vertical stack has none of those failure
-     modes: every card is in normal flow, on screen, at full width.
-
-     overflow-x is reset rather than left as auto, so nothing about the row
-     depends on horizontal scrolling any more. */
-  #teamRow {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 26px !important;
-    overflow-x: visible !important;
-    scroll-behavior: auto !important;
-  }
-  #teamRow > div {
-    flex: none !important;
-    width: 100% !important;
-    max-width: none !important;
-  }
-  /* The arrows only steer a scroll rail; with the stack there is nothing
-     left for them to do. */
-  #teamPrev, #teamNext { display: none !important; }
+  /* Narrow enough that the next card peeks and reads as scrollable. No scroll
+     snapping: the row carries its gutter as padding, and a mandatory snap
+     immediately eats it by aligning the first card to the snapport edge. */
+  #teamRow > div { flex: 0 0 min(76vw, 300px) !important; }
 }
 
 /* Offices map -------------------------------------------------------------- */
