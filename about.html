@@ -34,7 +34,7 @@
   @keyframes tickerScroll{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 </style>
 <link rel="stylesheet" href="valad-system.css">
-<link rel="stylesheet" href="responsive.css?v=12">
+<link rel="stylesheet" href="responsive.css?v=16">
 <script defer src="./header-scroll.js"></script>
 </helmet>
 
@@ -117,9 +117,9 @@
 
 <div id="journeyScroll" data-screen-label="Journey" style="position:relative;height:600vh;background:#0E0E0D">
   <div style="position:sticky;top:0;left:0;width:100%;height:100vh;overflow:hidden">
-    <video data-jvid="0" data-src="./assets/journey-1.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 700ms ease"></video>
-    <video data-jvid="1" data-src="./assets/journey-2.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
-    <video data-jvid="2" data-src="./assets/journey-3.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
+    <video data-jvid="0" poster="./assets/journey-1.jpg" data-src="./assets/journey-1.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 700ms ease"></video>
+    <video data-jvid="1" poster="./assets/journey-2.jpg" data-src="./assets/journey-2.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
+    <video data-jvid="2" poster="./assets/journey-3.jpg" data-src="./assets/journey-3.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,9,.55) 0%,rgba(10,10,9,.15) 40%,rgba(10,10,9,.55) 100%)"></div>
 
     <div class="r-journey-stage" style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 var(--valad-gutter);height:220px">

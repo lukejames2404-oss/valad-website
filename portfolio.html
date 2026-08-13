@@ -32,12 +32,21 @@
   select{appearance:none;-webkit-appearance:none;background:transparent;border:none;border-radius:0;outline:none;cursor:pointer}
   @keyframes riseIn{from{opacity:0;transform:translateY(115%)}to{opacity:1;transform:translateY(0)}}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  /* Grid imagery is greyscale, resolving to colour on interaction. The
+     colour state is keyed to :hover only on devices that genuinely hover —
+     on a touchscreen there is no hover to leave, so a tap left a card stuck
+     part-way through the transition and the grid ended up with a mix of
+     grey and colour tiles. Touch devices get colour on the opened asset
+     instead, via the modal, and the grid stays uniformly greyscale. */
   [data-asset] image-slot{filter:grayscale(1);transition:filter 400ms ease}
-  [data-asset]:hover image-slot{filter:grayscale(0)}
-  #modalImageSlot image-slot{filter:none}
+  @media (hover: hover) and (pointer: fine) {
+    [data-asset]:hover image-slot{filter:grayscale(0)}
+  }
+  /* The opened asset always shows in full colour, on any input device. */
+  #modalImageSlot image-slot{filter:none !important}
 </style>
 <link rel="stylesheet" href="valad-system.css">
-<link rel="stylesheet" href="responsive.css?v=12">
+<link rel="stylesheet" href="responsive.css?v=16">
 <script defer src="./header-scroll.js"></script>
 </helmet>
 

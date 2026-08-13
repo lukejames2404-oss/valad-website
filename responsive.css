@@ -917,32 +917,59 @@
   .r-life > div:first-child { min-height: clamp(240px, 40vh, 380px) !important; }
 }
 
-/* ── News cards on mobile ────────────────────────────────────────────────
-   These were a scroll-stacked deck (position:sticky with stepped offsets),
-   mirroring valad.io's product cards. It measured correctly in every
-   emulator but rendered as a blank block on real iOS Safari, where the
-   section could not be scrolled past. A decorative effect is not worth a
-   section that does not render, so mobile now uses a plain vertical stack:
-   ordinary flow, no sticky, no negative margins, nothing that depends on
-   viewport-relative positioning. */
+/* ── News cards on mobile: scroll-stacked deck ───────────────────────────
+   Each card gets its own tall wrapper and is sticky inside it — the same
+   structure valad.io uses for its product cards, and the reason theirs
+   works. The first attempt made the three cards siblings of one flex
+   parent with no spare height: sticky then has nowhere to travel, and
+   sticky-inside-flex is exactly the combination iOS Safari mishandles,
+   which is why the section rendered blank on an iPhone while measuring
+   correctly in every emulator.
+
+   The wrapper is display:contents on desktop, so the three-up grid above
+   this breakpoint is untouched. */
+.r-news-stack { display: contents; }
+
 @media (max-width: 809.98px) {
+  /* Block flow, not flex: sticky-inside-flex is the combination iOS Safari
+     mishandles. The cards share this one containing block so an early card
+     stays pinned while the next rides up over it — that overlap IS the
+     deck. Per-card wrappers were tried first and cannot work: each card
+     releases at its own wrapper's end, so they never overlap. */
   .r-news-grid {
-    display: flex !important;
-    flex-direction: column;
-    gap: 22px !important;
+    display: block !important;
+    /* The pinned card covers this while it scrolls, so it reads as travel
+       rather than empty space. */
+    padding-bottom: 34vh !important;
   }
+  .r-news-stack { display: contents; }
+
   .r-news-grid [data-news-card] {
+    position: -webkit-sticky;
+    position: sticky;
+    margin-bottom: 22px;
+    /* Must be opaque: a stacked card sits on top of the one before it, and
+       a transparent card lets the buried card's text show through — which
+       reads as overlapping text, not as a deck. */
     background: #EDECE8;
     border: 1px solid rgba(20, 20, 20, .10);
     padding: 0 0 24px;
-    gap: 16px !important;
+    box-shadow: 0 -8px 24px rgba(20, 20, 20, .06);
   }
-  /* Article image sits flush to the card's top and side edges. The card has
-     no side padding, so the image needs no negative pull. */
+  /* Stepped offsets leave a sliver of each buried card visible. */
+  .r-news-grid [data-news-card]:nth-of-type(1) { top: 78px; }
+  .r-news-stack:nth-child(1) [data-news-card] { top: 78px; }
+  .r-news-stack:nth-child(2) [data-news-card] { top: 94px; }
+  .r-news-stack:nth-child(3) [data-news-card] { top: 110px; }
+
+  /* Image flush to the card's top and sides; text inset instead. */
   .r-news-grid [data-news-card] > div:first-child { width: 100%; }
   .r-news-grid [data-news-card] > :not(:first-child) {
     padding-left: 18px;
     padding-right: 18px;
   }
+  /* A transformed sticky element becomes a containing block and stops
+     pinning, so the reveal here is a fade only. */
+  .r-news-grid [data-news-card][data-reveal] { transform: none !important; }
 }
 }
