@@ -22,7 +22,7 @@
 <body>
 <x-dc>
 <helmet>
-<script src="image-slot.js?v=4"></script>
+<script src="image-slot.js?v=5"></script>
 <style>
   html,body{margin:0;padding:0;background:#EDECE8;scroll-behavior:smooth}
   *{box-sizing:border-box}
@@ -333,6 +333,13 @@ class Component extends DCLogic {
     const el = this.$scroll;
     if (!el) return;
     const rect = el.getBoundingClientRect();
+    const nearVals = rect.bottom > -200 && rect.top < window.innerHeight + 200;
+    if (!nearVals) {
+      if (this._valsIdle) return;
+      this._valsIdle = true;
+    } else {
+      this._valsIdle = false;
+    }
     const total = Math.max(1, el.offsetHeight - window.innerHeight);
     const clamp = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
     const p = clamp(-rect.top / total);
@@ -372,6 +379,16 @@ class Component extends DCLogic {
     const el = this.$journey;
     if (!el) return;
     const rect = el.getBoundingClientRect();
+    // Runs on every scroll frame across the whole page, but the section it
+    // drives is only part of it. Settle once on leaving, then skip until it
+    // is back in range — the rest of the page pays nothing for it.
+    const near = rect.bottom > -200 && rect.top < window.innerHeight + 200;
+    if (!near) {
+      if (this._journeyIdle) return;
+      this._journeyIdle = true;
+    } else {
+      this._journeyIdle = false;
+    }
     const total = Math.max(1, el.offsetHeight - window.innerHeight);
     const clamp = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
     const p = clamp(-rect.top / total);
