@@ -117,9 +117,9 @@
 
 <div id="journeyScroll" data-screen-label="Journey" style="position:relative;height:600vh;background:#0E0E0D">
   <div style="position:sticky;top:0;left:0;width:100%;height:100vh;overflow:hidden">
-    <video data-jvid="0" src="./assets/journey-1.mp4" muted loop playsinline preload="auto" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 700ms ease"></video>
-    <video data-jvid="1" src="./assets/journey-2.mp4" muted loop playsinline preload="auto" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
-    <video data-jvid="2" src="./assets/journey-3.mp4" muted loop playsinline preload="auto" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
+    <video data-jvid="0" data-src="./assets/journey-1.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 700ms ease"></video>
+    <video data-jvid="1" data-src="./assets/journey-2.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
+    <video data-jvid="2" data-src="./assets/journey-3.mp4" muted loop playsinline preload="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 700ms ease"></video>
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,9,.55) 0%,rgba(10,10,9,.15) 40%,rgba(10,10,9,.55) 100%)"></div>
 
     <div class="r-journey-stage" style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 var(--valad-gutter);height:220px">
@@ -231,6 +231,20 @@ class Component extends DCLogic {
   cacheRefs() {
     this.$journey = document.getElementById("journeyScroll");
     this.$jvid = [0, 1, 2].map((i) => document.querySelector('[data-jvid="' + i + '"]'));
+    // Give the first clip a head start so the panel is not black on arrival,
+    // but only once the journey section is within a screen of the viewport.
+    const js = document.getElementById("journeyScroll");
+    if (js && "IntersectionObserver" in window) {
+      const warm = new IntersectionObserver((es) => {
+        es.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const v = this.$jvid[0];
+          if (v && !v.src) { const d = v.getAttribute("data-src"); if (d) { v.preload = "auto"; v.src = d; } }
+          warm.disconnect();
+        });
+      }, { rootMargin: "100% 0px" });
+      warm.observe(js);
+    }
     this.$jtext = [0, 1, 2].map((i) => document.querySelector('[data-jtext="' + i + '"]'));
     this.$jdot = [0, 1, 2].map((i) => document.querySelector('[data-jdot="' + i + '"]'));
     this.$jblack = document.querySelector("[data-jblack]");
@@ -384,6 +398,14 @@ class Component extends DCLogic {
       const active = i === idx;
       if (this.$jvid[i]) {
         const v = this.$jvid[i];
+        // Sources are attached on demand. With preload="auto" on all three,
+        // the browser pulled 43MB before the section was anywhere near the
+        // viewport, which is what stalled the page on a phone. Load the
+        // active panel and the one after it; the rest stay unfetched.
+        if (!v.src && (active || i === idx + 1) && onScreen) {
+          const d = v.getAttribute("data-src");
+          if (d) { v.preload = "auto"; v.src = d; }
+        }
         v.style.opacity = active ? "1" : "0";
         if (active && onScreen) { if (v.paused) { const r = v.play(); if (r && r.catch) r.catch(() => {}); } }
         else if (!v.paused) v.pause();
