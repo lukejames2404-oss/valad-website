@@ -28,7 +28,7 @@
 <body>
 <x-dc>
 <helmet>
-<script src="./image-slot.js?v=3"></script>
+<script src="./image-slot.js?v=4"></script>
 <style>
   html,body{margin:0;padding:0;background:#EDECE8}
   *{box-sizing:border-box}
@@ -318,7 +318,12 @@ class Component extends DCLogic {
       let p = el.parentElement;
       while (p && p !== document.body) {
         const ox = getComputedStyle(p).overflowX;
-        if ((ox === "auto" || ox === "scroll") && p.scrollWidth > p.clientWidth + 4) return p;
+        // Deliberately not testing scrollWidth > clientWidth: reveals are set
+        // up before images have sized, so a rail that will overflow may not
+        // yet, and the card then falls through to individual observation —
+        // where it never intersects and stays hidden for good. An element
+        // declaring overflow-x:auto/scroll is a rail either way.
+        if (ox === "auto" || ox === "scroll") return p;
         p = p.parentElement;
       }
       return null;
