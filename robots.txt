@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Answer engines are allowed: article text is the point of publishing it.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://valad.io/sitemap.xml

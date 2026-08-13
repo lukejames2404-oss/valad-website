@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "valad-site",
+      "runtimeExecutable": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+      "runtimeArgs": ["serve.py"],
+      "port": 4173,
+      "autoPort": true
+    }
+  ]
+}

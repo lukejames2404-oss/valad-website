@@ -1,0 +1,213 @@
+/* ============================================================================
+   Valad — design system base
+   ----------------------------------------------------------------------------
+   These pages are an extension of valad.io and must read as the same site, so
+   the values below are measured from valad.io rather than invented here.
+
+   Reference readings (Chrome, 2026-08-12):
+
+     Typeface     Saans VF-TRIAL Variable Light, weight 300, everywhere.
+                  valad.io has no weight variation at all — hierarchy is carried
+                  by size and colour alone. The face is served from Framer as a
+                  single woff2; it is vendored into assets/ so these pages do
+                  not hotlink framerusercontent.com.
+
+     Tracking     letter-spacing: normal (0) on every element bar one 15px body
+                  style at 0.15px. Matches the project note in CLAUDE.md.
+
+     Breakpoints  desktop  >= 1200      gutter 80px, header 70px
+                  tablet   810 - 1199   gutter 40px, header 70px
+                  mobile   <= 809       gutter 20px, header 70px
+
+     Logo         85 x 22 at every breakpoint — it does not scale.
+
+     Type scale   12 13 14 15 16 18 20 22 24 26 28 32 36 40 64
+                  Display steps run tight (1.1 - 1.4), body runs loose
+                  (1.5 - 1.6), small labels sit at 1.2 - 1.3.
+
+   This file carries the base layer only. Everything breakpoint-specific lives
+   in responsive.css, which loads after it.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Saans';
+  src: url('assets/saans-light.woff2') format('woff2');
+  /* valad.io ships one Light master. Claiming the full range means a stray
+     font-weight:500 left anywhere in the markup resolves to this face instead
+     of triggering the browser's synthetic bold. */
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Framer pairs the webfont with a metric-matched Arial fallback so the swap
+   does not reflow. Same overrides, same numbers. */
+@font-face {
+  font-family: 'Saans Fallback';
+  src: local('Arial');
+  ascent-override: 91.69%;
+  descent-override: 22.67%;
+  line-gap-override: 0%;
+  size-adjust: 99.25%;
+}
+
+:root {
+  --valad-font: 'Saans', 'Saans Fallback', Helvetica, Arial, sans-serif;
+
+  /* Page gutter — the single value every section's horizontal padding uses.
+     Overridden per breakpoint in responsive.css. */
+  --valad-gutter: 80px;
+  /* One height at every width, as on valad.io: its bar is 24px of padding above
+     and below the 22px wordmark and never changes size between breakpoints. */
+  --valad-header-h: 70px;
+
+  --valad-ink: #151515;
+  --valad-paper: #EDECE8;
+}
+
+html, body {
+  font-family: var(--valad-font);
+  font-weight: 300;
+  letter-spacing: 0;
+}
+
+/* Header CTA ----------------------------------------------------------------
+   The bar is a grid with `align-items: stretch`, and the CTA comes in two
+   shapes: on the homepage and Careers `.r-cta` is a wrapper that stretches the
+   full bar and centres the 44px pill inside itself, while on the other four
+   pages `.r-cta` is the pill — an anchor with `height: 44px` of its own. A grid
+   item whose cross size is definite cannot stretch, so those four fall back to
+   start alignment and the pill hangs off the top edge of the bar with all the
+   slack below it. Centring it explicitly fixes the four and changes nothing for
+   the two, which already centre their pill by other means.
+
+   Only below 810 does this stop applying — there the CTA leaves the bar for the
+   overlay and is positioned, so alignment within the grid no longer means
+   anything (see section 2 of responsive.css). */
+.r-header .r-cta { align-self: center; }
+
+/* Header plate --------------------------------------------------------------
+   The bar carries no background while it is over a page's hero — it is a fixed
+   overlay on the composition, not a band above it — and takes its plate once
+   the page has scrolled past the trip point. The homepage and Careers drive
+   this from their own scroll components, which write these same values inline;
+   the other four pages get the class from header-scroll.js. Both routes land on
+   the same appearance so the bar behaves identically across the site. */
+.r-header--solid.r-header--light {
+  background: rgba(237, 236, 232, .92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(20, 20, 20, .12);
+}
+.r-header--solid.r-header--dark {
+  background: rgba(20, 20, 20, .9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(243, 242, 238, .12);
+}
+
+/* Two pages open on a dark full-bleed photograph while running the same light
+   bar as everywhere else, so with no plate their marks would be dark ink on a
+   dark image. `r-header--hero-dark` flips the wordmark, the burger and the nav
+   links for exactly as long as the bar is transparent.
+
+   The pill is a separate opt-in because it is a separate judgement: it is a
+   solid shape, not ink, so it survives a mid-tone image where thin marks would
+   not. The homepage's dusk skyline reads fine behind the dark pill and keeps
+   it; About's near-black cave does not, and takes `r-header--hero-invert-cta`
+   as well.
+
+   Nav and pill are handled at desktop widths only — below 810 both live inside
+   the overlay, which paints its own background and sets its own colours. */
+/* `!important` because the mobile tier pins the light bar's wordmark to
+   `filter: none !important` and an important declaration is only beaten by
+   another one; this selector is the more specific of the two, so it wins where
+   it applies and defers to the open-overlay rule that is more specific still. */
+.r-header--hero-dark:not(.r-header--solid) .r-logo img {
+  filter: invert(1) brightness(1.7) !important;
+}
+@media (min-width: 810px) {
+  .r-header--hero-dark:not(.r-header--solid) .r-nav > a { color: #F7F5F0 !important; }
+  .r-header--hero-invert-cta:not(.r-header--solid) a.r-cta,
+  .r-header--hero-invert-cta:not(.r-header--solid) .r-cta > a {
+    background: #F7F5F0 !important;
+    color: #151515 !important;
+  }
+}
+
+/* The markup carries ~370 inline font-family declarations that have been
+   rewritten to lead with Saans, but headings still default to bold in the UA
+   sheet. valad.io renders every heading at 300. */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 300;
+}
+
+/* Nothing on valad.io is bolder than Light. These are the only two elements
+   that would otherwise inherit a heavier default. */
+strong, b {
+  font-weight: 300;
+}
+
+/* Form controls do not inherit type from `body` — the UA sheet gives them their
+   own `font: 400 13.333px Arial`. Without this the portfolio and news
+   pagination and the modal close buttons render in Arial Regular. */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 300;
+  letter-spacing: 0;
+}
+
+/* The portfolio and news filters are `flex:1` selects inside a fixed grid
+   cell. A flex item's default `min-width:auto` refuses to shrink below its
+   widest option, so at 1200 — the narrowest desktop width — the Sector select
+   pushed 37px past the viewport. `min-width:0` lets them take the cell. */
+select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Closing marquee -----------------------------------------------------------
+   Every page ends on the same block: the closing line and its links, then a
+   slow band of grayscale imagery, then the LinkedIn and email marks. The band
+   is a single row duplicated end to end and translated -50%, so the second copy
+   lands exactly where the first started and the loop has no seam — which is why
+   the track must carry an even number of images, half of them repeats.
+
+   The keyframes are the reason this lives here rather than in the markup: the
+   rest of the composition is authored inline, but `@keyframes` has no inline
+   form, and the homepage was the only page that had it. The remaining sizing is
+   kept alongside it so the six copies of the block cannot drift apart. */
+@keyframes vmarquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.r-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.r-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: clamp(60px, 9vw, 150px);
+  animation: vmarquee 32s linear infinite;
+}
+.r-marquee-track img {
+  height: clamp(150px, 20vh, 215px);
+  width: auto;
+  display: block;
+  filter: grayscale(1) contrast(1.05);
+}
+/* Held still rather than hidden — the imagery is part of the composition, the
+   travel is not. The duplicate half simply sits off the right edge. */
+@media (prefers-reduced-motion: reduce) {
+  .r-marquee-track { animation: none; }
+}
+/* The homepage's closing section carries no horizontal padding, so its band
+   runs edge to edge on its own. The five interior pages close inside the page
+   gutter, and the band has to step back out of it to read the same way. */
+.r-marquee--bleed {
+  margin-left: calc(var(--valad-gutter) * -1);
+  margin-right: calc(var(--valad-gutter) * -1);
+}

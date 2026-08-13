@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+
+# Working backups
+.backup-pre-typepass/
+
+# Source/working imagery — the site serves images from assets/ and from the
+# image-slot sidecar, so the originals are not needed to run the site.
+news images /
+news images/
+Team headhsots/
+Untitled design*.png
+Untitled design.jpg
+Screenshot */
+Screenshot*.png
+ChatGPT Image*.png
+Gemini_Generated_Image*.png
+ACFrOg*
+Rycote-BLOG-3.jpg
+light-industrial-units.webp
+LinkedIn_icon_circle.svg.webp
+7wJKyxH9AZxG4lK75VC9iX.jpg
+pexels-nikola-sivkov*.jpg
+pexels-postiglioni*.jpg
+3d9dd147-*.png

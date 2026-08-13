@@ -1,0 +1,980 @@
+/* ============================================================================
+   Valad — responsive layer
+   ----------------------------------------------------------------------------
+   Built on the same principles as the Hector site's responsive.css.
+
+   The desktop composition is the approved source of truth and is left
+   untouched: every rule in this file lives inside a max-width media query.
+
+   Because the design is authored with inline `style` attributes, structural
+   overrides need `!important` to win the cascade (an important author rule
+   beats a normal inline declaration). Several sections are also driven by
+   JavaScript that writes inline styles on scroll — those need `!important`
+   too, which is why the header and the lifecycle panels are pinned rather
+   than left to the script below the desktop tier.
+
+   Breakpoints — these are valad.io's own, read out of the media queries Framer
+   emits on the live site, so a visitor crossing between the two never meets a
+   reflow at a width one site recomposes at and the other does not:
+
+     desktop  >= 1200         untouched baseline, 80px gutter
+     tablet   810 - 1199.98   40px gutter, desktop type scale retained
+     mobile   <= 809.98       20px gutter, reduced type scale
+
+   The tablet tier deliberately carries no type overrides. valad.io holds its
+   full desktop scale down to 810 (its hero is still 64px at 834px wide) and
+   only changes the gutter, so this file does the same.
+
+   Type note (see CLAUDE.md): letter-spacing stays at 0 everywhere. Positive
+   tracking is only ever used on small uppercase eyebrow/label text, so no rule
+   here introduces negative tracking.
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   0. Breakpoint tokens
+   The gutter and header height are consumed by inline styles in the markup as
+   var(--valad-gutter) / var(--valad-header-h); re-pointing them here moves
+   every section's horizontal padding at once.
+
+   Only the gutter moves. The bar holds one height at every width — see the
+   token in valad-system.css — so there is no header override here.
+   -------------------------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  :root { --valad-gutter: 40px; }
+}
+@media (max-width: 809.98px) {
+  :root { --valad-gutter: 20px; }
+}
+
+
+/* --------------------------------------------------------------------------
+   1. Global safety net
+   -------------------------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  /* `clip`, never `hidden`: overflow-x:hidden turns the viewport into a scroll
+     container, which silently kills every position:sticky on the page — the
+     homepage sector scroller and both About scrollers depend on it. `clip`
+     contains a stray pixel without creating that scroll container. */
+  html, body { max-width: 100%; overflow-x: clip; }
+  img, video, canvas, svg { max-width: 100%; }
+  /* Media that is explicitly placed by the layout keeps its own dimensions. */
+  img[style*="position: absolute"], img[style*="position:absolute"],
+  video[style*="position: absolute"], video[style*="position:absolute"],
+  canvas[style*="position: absolute"], canvas[style*="position:absolute"] { max-width: none; }
+}
+
+/* Mobile type scale ---------------------------------------------------------
+   Read directly off valad.io's mobile view at 375px and mapped step-for-step
+   onto the ladder the markup now uses. valad.io's own readings:
+
+     desktop  64  40  36  32  28  26  24  20  18  16  15  14  13  12
+     mobile   39  32  28  24  24  22  18  18  18  14  15  14  13  12
+
+   Every step is a measured pair, not a derived one — valad.io's mobile view was
+   read element by element and matched to its desktop counterpart:
+     64→39  "Institutional Assets, Built End-to-End"  (39px / 42.9px)
+     40→32  "Our Assets"
+     32→24  "Join our consortium of partners…"
+     28→24  "Partnering with industry-leading platforms…"
+     26→22  "Institutional analytics for commercial real estate"
+     24→18  "Global Asset Management"
+     20→18  "Private Credit Origination"
+     16→14  "Institutional-grade intelligence for real estate…"
+   15, 14, 13 and 12 do not move at all.
+
+   Keyed off the inline serialisation because the composition is authored with
+   style attributes; both spellings are matched since the pages carry a mix of
+   hand-written and editor-written styles. Line height moves with the size —
+   valad.io runs display tight (1.1) and body loose (1.5-1.6) at every width. */
+@media (max-width: 809.98px) {
+  [style*="font-size:64px"], [style*="font-size: 64px"] { font-size: 39px !important; line-height: 1.1 !important; }
+  [style*="font-size:40px"], [style*="font-size: 40px"] { font-size: 32px !important; }
+  [style*="font-size:36px"], [style*="font-size: 36px"] { font-size: 28px !important; }
+  [style*="font-size:32px"], [style*="font-size: 32px"] { font-size: 24px !important; }
+  [style*="font-size:28px"], [style*="font-size: 28px"] { font-size: 24px !important; }
+  [style*="font-size:26px"], [style*="font-size: 26px"] { font-size: 22px !important; }
+  [style*="font-size:24px"], [style*="font-size: 24px"] { font-size: 18px !important; }
+  [style*="font-size:20px"], [style*="font-size: 20px"] { font-size: 18px !important; }
+  [style*="font-size:16px"], [style*="font-size: 16px"] { font-size: 14px !important; }
+}
+
+/* Uppercase labels — one size for the whole family.
+   The tracked, uppercase eyebrows and micro-labels are authored at 12, 13 and
+   14px with no system behind the split: the Offices eyebrow and the sector
+   counters sit at 12, "Our values" at 13, and the rest of the section eyebrows
+   (HOW WE OPERATE, NEWS & INSIGHT, OUR MISSION), the story dates, the team
+   roles and the footer column headings at 14 — large enough on a phone to
+   compete with the copy they are meant to label. The whole family collapses
+   onto the 12px the Offices eyebrow already uses, which is the only size
+   valad.io shows this text at on mobile. That also takes the stat captions
+   under section 4 from 13 to 12, so the caps run at one size everywhere.
+   `uppercase` only ever appears in a text-transform, so it is a safe hook; both
+   spellings of the declaration are matched as above. Tracking is untouched —
+   positive tracking on small uppercase labels is the one case CLAUDE.md allows,
+   and it is what keeps them legible at 12px. */
+@media (max-width: 809.98px) {
+  [style*="uppercase"][style*="font-size:14px"],
+  [style*="uppercase"][style*="font-size: 14px"],
+  [style*="uppercase"][style*="font-size:13px"],
+  [style*="uppercase"][style*="font-size: 13px"] { font-size: 12px !important; }
+}
+
+/* Hero lede — every page opens with a 64px headline over a short standfirst,
+   and the homepage sets that standfirst at 18px desktop / 15px mobile. 18px has
+   no entry in the map above (valad.io does not move it), so the interior pages
+   would otherwise hold 18px on a phone while the homepage dropped to 15px.
+   The hook is on the paragraph itself; the homepage's own lede is nested inside
+   a wrapper and keeps its existing rule in section 3. Contact is the exception
+   and opts out in section 7 — its headline is empty, so the lede is the only
+   thing in that hero and is set as a headline rather than a standfirst. */
+@media (max-width: 809.98px) {
+  .r-page-lede { font-size: 15px !important; line-height: 1.6 !important; }
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Header + mobile navigation
+   The toggle is a plain uncontrolled checkbox so it survives re-renders and
+   works with no JavaScript at all.
+   -------------------------------------------------------------------------- */
+.r-navtoggle { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; margin: 0; }
+.r-navbtn { display: none; }
+
+/* Tablet keeps valad.io's real tablet header: the horizontal nav stays, only
+   the gutter tightens (handled by --valad-gutter in section 0). The nav gap
+   comes in from 50/32 so four items still clear the CTA at 810. */
+@media (max-width: 1199.98px) and (min-width: 810px) {
+  .r-header .r-nav { padding-left: 32px !important; gap: 22px !important; }
+}
+
+/* Mobile: valad.io drops its nav entirely at 809 because its three items are
+   in-page anchors. Ours are four separate pages, so the links have to survive
+   — they move into the full-screen overlay rather than disappearing. */
+@media (max-width: 809.98px) {
+  .r-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    height: var(--valad-header-h) !important;
+    padding: 0 var(--valad-gutter) !important;
+    z-index: 60 !important;
+  }
+  /* The bar is transparent over the hero here exactly as it is on desktop, so
+     the background is left to the scroll state and only the blur is pinned off.
+     That is not a performance call: `backdrop-filter` makes the header a
+     containing block for fixed-position descendants, so the full-screen nav
+     overlay nested inside it resolves `inset: 0` against the bar instead of the
+     viewport. The scrolled plate is nearly opaque and reads fine without it. */
+  /* Two foregrounds, not one. `--r-nav-fg` is the overlay's ink, which always
+     sits on `--r-nav-bg`; `--r-bar-fg` is the ink on the bar itself, which sits
+     on whatever the hero happens to be. They agree on every page except About,
+     where the bar is over a dark photograph until it takes its plate. */
+  .r-header--light {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    --r-nav-bg: #EDECE8;
+    --r-nav-fg: #151515;
+    --r-bar-fg: #151515;
+  }
+  .r-header--dark {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    --r-nav-bg: #151515;
+    --r-nav-fg: #F3F2EE;
+    --r-bar-fg: #F3F2EE;
+  }
+  .r-header--hero-dark:not(.r-header--solid) { --r-bar-fg: #F7F5F0; }
+
+  /* The bar carries the gutter now, so the logo adds none of its own — and the
+     wordmark stays 22px at every width, exactly as it does on valad.io. */
+  .r-header .r-logo {
+    order: 0;
+    height: auto !important;
+    padding: 0 !important;
+    position: relative;
+    z-index: 62;
+  }
+  .r-header--light .r-logo img { filter: none !important; }
+  .r-header--dark  .r-logo img { filter: invert(1) brightness(1.7) !important; }
+  /* Once the overlay is open the wordmark is on the panel, not on the hero, so
+     About's inversion has to come back off. The logo is before the toggle in
+     the markup and no sibling combinator reaches backwards, hence `:has()`. */
+  .r-header--light:has(.r-navtoggle:checked) .r-logo img { filter: none !important; }
+
+  .r-navbtn { order: 3; margin-right: 0; margin-left: auto; }
+
+  /* Bare three-line mark — no pill, no plate. Sized to sit with the 22px
+     wordmark rather than tower over it. */
+  .r-navbtn {
+    display: inline-flex !important;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3.5px;
+    width: 22px;
+    height: 22px;
+    flex: none;
+    padding: 0;
+    margin-left: 10px;
+    background: none;
+    border-radius: 0;
+    cursor: pointer;
+    position: relative;
+    z-index: 62;
+    color: var(--r-bar-fg, #151515);
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Open, the mark is an X drawn on the panel rather than on the hero. */
+  .r-navtoggle:checked ~ .r-navbtn { color: var(--r-nav-fg, #151515); }
+  /* The visual mark stays 22px; this restores a 44px touch area around it. */
+  .r-navbtn::after { content: ""; position: absolute; inset: -11px; }
+  .r-navbtn span {
+    display: block;
+    height: 1.5px;
+    width: 100%;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 260ms cubic-bezier(.4, 0, .2, 1), opacity 180ms ease;
+  }
+
+  /* Full-screen navigation overlay */
+  .r-header .r-nav {
+    position: fixed !important;
+    inset: 0;
+    z-index: 61;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    /* Bottom padding reserves the CTA's strip so the links centre in the space
+       above it rather than in the whole panel and run into it on a short
+       screen. */
+    padding: 0 var(--valad-gutter) clamp(110px, 18vh, 170px) !important;
+    background: var(--r-nav-bg, #EDECE8);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    overscroll-behavior: contain;
+    transition: opacity 260ms ease, transform 320ms cubic-bezier(.4, 0, .2, 1), visibility 320ms;
+  }
+  .r-navtoggle:checked ~ .r-nav { opacity: 1; visibility: visible; transform: none; }
+
+  .r-header .r-nav > a {
+    padding: 16px 0 !important;
+    /* 32px is the mobile display step — valad.io has no overlay of its own to
+       copy, so the panel borrows the scale rather than inventing a size. */
+    font-size: 32px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0 !important;
+    color: var(--r-nav-fg, #151515) !important;
+    border-bottom: none !important;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 260ms ease, transform 320ms cubic-bezier(.4, 0, .2, 1);
+  }
+  .r-navtoggle:checked ~ .r-nav > a { opacity: 1; transform: none; }
+  /* stagger the items in behind the panel */
+  .r-navtoggle:checked ~ .r-nav > a:nth-child(1) { transition-delay: 60ms; }
+  .r-navtoggle:checked ~ .r-nav > a:nth-child(2) { transition-delay: 100ms; }
+  .r-navtoggle:checked ~ .r-nav > a:nth-child(3) { transition-delay: 140ms; }
+  .r-navtoggle:checked ~ .r-nav > a:nth-child(4) { transition-delay: 180ms; }
+  .r-navtoggle:checked ~ .r-nav > a:nth-child(5) { transition-delay: 220ms; }
+
+  /* Current page: a rule in the accent, standing in for the desktop underline
+     that the overlay drops. Marked with a class rather than keyed off the inline
+     border — the runtime rewrites inline styles (#BAD2FF comes back out as
+     `rgb(186, 210, 255)`) and drops `data-current`, but it preserves classes. */
+  .r-header .r-nav > a.r-current { padding-left: 22px !important; position: relative; }
+  .r-header .r-nav > a.r-current::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 12px;
+    height: 1.5px;
+    background: #BAD2FF;
+  }
+
+  /* Hamburger -> X (sits above the overlay so it also closes it) */
+  .r-navtoggle:checked ~ .r-navbtn span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  .r-navtoggle:checked ~ .r-navbtn span:nth-child(2) { opacity: 0; }
+  .r-navtoggle:checked ~ .r-navbtn span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+
+  /* The CTA belongs to the menu on mobile, not to the bar. Its label is long
+     ("Digital Assets Division" against valad.io's "Get in contact") and sharing
+     the bar with the wordmark and the burger meant shrinking it below its
+     desktop size to fit 375px. Inside the overlay it can be full width at its
+     proper size, and the bar is left as wordmark + burger.
+
+     It is a sibling of the toggle and comes after `.r-nav` in the markup, so it
+     can be revealed by the same `:checked` selector and paints over the panel
+     without needing a z-index above the burger. Taken out of flow rather than
+     reparented — `.r-cta` is the anchor itself on the inner pages and a wrapper
+     div on the homepage and Careers, and moving either in the DOM would mean
+     rebuilding the desktop header grid on six pages. */
+  .r-header .r-cta {
+    position: fixed !important;
+    left: var(--valad-gutter);
+    right: var(--valad-gutter);
+    bottom: clamp(48px, 11vh, 96px);
+    z-index: 61;
+    display: flex !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 260ms ease, transform 320ms cubic-bezier(.4, 0, .2, 1), visibility 320ms;
+  }
+  /* Last in after the five links, which run 60ms to 220ms. */
+  .r-navtoggle:checked ~ .r-cta {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 260ms;
+  }
+  .r-header a.r-cta, .r-header .r-cta > a {
+    flex: 1;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 52px !important;
+    padding: 0 22px !important;
+    border-radius: 60px !important;
+    font-size: 15px !important;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Generic layout collapse utilities
+   -------------------------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  /* Two equal-ish editorial columns. */
+  .r-2col       { grid-template-columns: minmax(0, 1fr) !important; gap: clamp(28px, 5vw, 48px) !important; }
+  /* Label column + content column ("HOW WE OPERATE" + heading). */
+  .r-2col-label { grid-template-columns: minmax(0, 1fr) !important; gap: 14px !important; }
+  /* Term + definition rows. */
+  .r-2col-def   { grid-template-columns: minmax(0, 1fr) !important; gap: 12px !important; }
+  .r-3col       { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .r-4col       { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .r-unstick    { position: static !important; top: auto !important; }
+  .r-stack      { flex-direction: column !important; }
+}
+@media (max-width: 809.98px) {
+  .r-2col     { gap: 26px !important; }
+  .r-3col     { grid-template-columns: minmax(0, 1fr) !important; }
+  .r-hide-m   { display: none !important; }
+}
+
+/* Touch targets: any link/button that reads as a control gets a floor. */
+@media (max-width: 1199.98px) {
+  .r-tap { min-height: 44px; display: inline-flex !important; align-items: center; }
+}
+
+/* Footer — shared by all six pages ----------------------------------------- */
+@media (max-width: 1199.98px) {
+  .r-foot-nav { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 32px !important; }
+  .r-foot-nav > div:first-child { grid-column: 1 / -1; }
+  .r-foot-addr { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 28px !important; }
+}
+@media (max-width: 809.98px) {
+  .r-foot-nav > div, .r-foot-addr > div { padding-top: 24px !important; }
+  .r-foot-addr > div { font-size: 13px !important; }
+}
+
+
+/* ==========================================================================
+   4. Homepage
+   ========================================================================== */
+
+/* Hero --------------------------------------------------------------------- */
+
+/* The mobile-only pill CTA + stat row that lives in the hero markup. Off
+   everywhere except the phone composition below. */
+.r-hero-m { display: none; }
+
+@media (max-width: 1199.98px) {
+  /* The headline's inner span is authored `position:absolute; font-size:80px`,
+     which takes it out of flow and hard-codes a size the phone can't hold. */
+  [data-screen-label="Hero"] h1 span span {
+    position: static !important;
+    font-size: 64px !important;
+  }
+}
+
+/* Phone composition: a vertically centred left-aligned text block — headline
+   then standfirst — with a row of three stats split by hairline rules pinned to
+   the bottom edge. The hero's photo and gradient are both absolutely
+   positioned, so turning the section itself into a flex column only picks up
+   the text layers, which are un-pinned back into flow in DOM order. */
+@media (max-width: 809.98px) {
+  [data-screen-label="Hero"] {
+    /* The small-viewport unit so mobile browser chrome can't clip the hero. */
+    height: 100svh !important;
+    min-height: 560px !important;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    /* Top pad clears the fixed header and the bottom pad reserves the stat
+       row's footprint, so `center` centres the text in what's actually left
+       rather than in the raw section box. */
+    padding: var(--valad-header-h) var(--valad-gutter) calc(118px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  /* The scroll cue is pinned to the corner the stat row now occupies. */
+  [data-screen-label="Hero"] a[href="#about"] { display: none !important; }
+  /* Empty spacer div the desktop layout parks at 66%. */
+  [data-screen-label="Hero"] > div:not([style*="linear-gradient"]):empty { display: none !important; }
+  /* The desktop scrim only has to carry a single line of standfirst; the phone
+     stack runs four blocks deep over the brightest part of the photograph. */
+  [data-screen-label="Hero"] > div[style*="linear-gradient"] {
+    background: linear-gradient(180deg,
+      rgba(14, 14, 13, .46) 0%,
+      rgba(14, 14, 13, .16) 26%,
+      rgba(14, 14, 13, .58) 62%,
+      rgba(14, 14, 13, .90) 100%) !important;
+  }
+
+  [data-screen-label="Hero"] h1 {
+    position: static !important;
+    transform: none !important;
+    padding: 0 !important;
+    margin: 0 0 16px !important;
+    text-align: left !important;
+    line-height: .98 !important;
+  }
+  [data-screen-label="Hero"] h1 span span { font-size: 39px !important; }
+
+  [data-screen-label="Hero"] .r-hero-lede {
+    position: static !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    border-left: 0 !important;
+  }
+  [data-screen-label="Hero"] .r-hero-lede p { font-size: 15px !important; line-height: 1.6 !important; }
+
+  /* Out of flow so the centred text block above is unaffected by its height. */
+  .r-hero-m {
+    display: block;
+    position: absolute;
+    left: var(--valad-gutter);
+    right: var(--valad-gutter);
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+    animation: fadeIn 900ms ease 1250ms both;
+  }
+  .r-hero-m-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .r-hero-m-stats > div {
+    padding: 2px 10px 0 0;
+    min-width: 0;
+  }
+  .r-hero-m-stats > div + div {
+    border-left: 1px solid rgba(247, 245, 240, .26);
+    padding-left: 12px;
+  }
+  .r-hero-m-stats span {
+    display: block;
+    font-family: var(--valad-font);
+    letter-spacing: 0;
+    text-wrap: pretty;
+  }
+  /* Two lines' worth of room whether or not the value wraps ("UK & Europe"
+     does at this column width), so the three labels share a baseline. */
+  .r-hero-m-stats span:first-child {
+    font-size: 18px;
+    line-height: 1.1;
+    min-height: 2.2em;
+    color: #F7F5F0;
+    margin-bottom: 6px;
+  }
+  .r-hero-m-stats span:last-child {
+    font-size: 13px;
+    line-height: 1.28;
+    color: rgba(247, 245, 240, .62);
+  }
+}
+
+/* Thesis ------------------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  /* The sticky standfirst has nothing to sit beside once the columns stack. */
+  .r-thesis-copy { position: static !important; top: auto !important; }
+  .r-thesis-copy p { max-width: none !important; }
+  /* The cards keep the desktop composition: portrait proportion, number at the
+     top, label at the foot, and the second column dropped against the first.
+     Only the height comes down — five 320-520px cards is a minute of scrolling
+     for five numbers — and the offset is left to the authored inline
+     clamp(30px,7vh,72px) so the stagger survives at every width. */
+  .r-stats > div > div { min-height: clamp(240px, 34vh, 310px) !important; padding: 24px !important; }
+}
+@media (max-width: 809.98px) {
+  .r-stats { gap: 6px !important; }
+  .r-stats > div { gap: 6px !important; }
+  .r-stats > div > div { min-height: 244px !important; padding: 20px !important; }
+  /* Two 162px-wide cards can't hold a 30px number and its label. */
+  .r-stats > div > div > div:first-child { font-size: 26px !important; }
+  .r-stats > div > div > div:last-child  { font-size: 13px !important; }
+}
+
+/* Sectors — the 760vh pinned scroller ------------------------------------- *
+   The desktop stage is a five-part composition: an index rail on the left, the
+   sector name centred at the top, a copy column and a facts column flanking a
+   centred image mosaic. Below 1024 the flanking columns compute to about 100px
+   wide (their width is `50% - half the mosaic - a gutter`), so the stage is
+   re-stacked vertically instead: name, mosaic, copy, facts. The index rail is
+   dropped — the name already says which sector is on screen.                 */
+@media (max-width: 1199.98px) {
+  .r-sec-index { display: none !important; }
+
+  /* The name was anchored at 11vh, which on a 844px phone puts it 88px down —
+     under the header as it then stood at 92px. Measured, it left 13px of air
+     above the name and 47px below it, which is what made it read trapped. The
+     bar has since come down to 70px, so the clearances below are floors rather
+     than the tight fits they were tuned as. The ceiling here is the
+     mosaic below it, and the mosaic is not free to move: layoutMark() pins it to
+     the name's bottom edge + 56px, so pushing the name down pushes the mosaic
+     into the bottom-anchored copy block. The budget is therefore whatever slack
+     sits between the mosaic and the copy, and that slack scales with viewport
+     height — a 700px phone has only ~18px of it, an 844px phone has ~58px.
+     Hence a vh-led anchor with a low floor: tall viewports get real air above
+     the name, short ones keep the spacing they already had. The mosaic also
+     gives up height to widen the budget — see #markBox below.
+
+     This is the tablet value; phones have a looser budget and override it in
+     the 809 block. At 900x800 it clears the header by 30px, where the old 11vh
+     anchor put the name 6px *behind* it. */
+  .r-sec-names { top: clamp(104px, 15.5vh, 170px) !important; padding: 0 var(--valad-gutter); }
+
+  /* The mosaic is sized off its own height; cap it against the viewport width
+     too so it can never be wider than the phone.
+
+     Down from 44vh/380px. The stage is a fixed vertical stack — name, mosaic,
+     copy, facts — inside one viewport, and layoutMark() pins the mosaic to the
+     name, so the air added above the name has to come out of the mosaic or the
+     stack collides. At 900x800 that is 272px of mosaic against 37px of
+     mosaic-to-copy clearance; at 900x700, 238px against 6px. */
+  #markBox {
+    --mk: min(34vh, 300px, 84vw);
+    height: var(--mk) !important;
+    width: calc(var(--mk) * 0.936) !important;
+  }
+
+  .r-sec-copy, .r-sec-facts {
+    left: var(--valad-gutter) !important;
+    right: var(--valad-gutter) !important;
+    width: auto !important;
+    top: auto !important;
+    transform: none !important;
+    height: 0 !important;
+  }
+  /* Steeper than the 19vh it replaces. The three gaps in the stack — mosaic to
+     copy, copy to facts — do not shrink at the same rate as the viewport, so a
+     shallow slope left 900x700 with 2px above the copy and 28px going spare
+     below it. 33vh-112px holds 152px at 800 (unchanged) and pulls the copy down
+     to 119px at 700, which splits that stack ~16/14 instead of ~2/28. */
+  .r-sec-copy  { bottom: clamp(100px, 33vh - 112px, 200px) !important; }
+  .r-sec-facts { bottom: clamp(34px, 7vh, 70px) !important; }
+
+  .r-sec-copy > div {
+    align-items: center !important;
+    text-align: center !important;
+    gap: 12px !important;
+  }
+  .r-sec-copy > div > a { align-self: center !important; }
+  .r-sec-copy p { font-size: 16px !important; line-height: 1.6 !important; }
+
+  /* Facts turn from a right-aligned stack into a single row of four. */
+  .r-sec-facts > div {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: clamp(8px, 2vw, 20px) !important;
+    text-align: center !important;
+  }
+  .r-sec-facts > div > div { flex: 1 1 0; min-width: 0; align-items: center !important; }
+  .r-sec-facts > div > div > div:first-child { font-size: 12px !important; }
+  .r-sec-facts > div > div > div:last-child  { font-size: 18px !important; }
+
+  #sectorFinale { bottom: clamp(34px, 7vh, 70px) !important; }
+}
+@media (max-width: 809.98px) {
+  #markBox { --mk: min(28vh, 240px, 84vw); }
+
+  /* Phones drop the facts row lower and carry a narrower mosaic than tablets,
+     so there is more room to spend above the name — 47px of air on an 844px
+     phone against the tablet's 30px. Floor kept at 114px for short handsets. */
+  .r-sec-names { top: clamp(114px, 16.5vh, 180px) !important; }
+  /* The inherited anchor left the copy hugging the facts row — 38px of air
+     above it, 114px below. Re-anchored to centre it in the gap between the
+     mosaic's bottom edge and the facts row. Both of those scale linearly with
+     viewport height (the mosaic is 28vh, the facts sit at 7vh), so the midpoint
+     between them is linear in vh too and this holds at any phone height.
+
+     Re-tuned from -50px when the name moved down: the mosaic follows the name,
+     which on a 700px phone closed the mosaic-to-copy gap to 5px while leaving
+     63px unused below the copy. -75px spends that slack on the gap that was
+     actually tight, giving ~30/38 on a 700px phone and ~75/75 on an 844px one. */
+  .r-sec-copy { bottom: calc(32.5vh - 75px) !important; }
+  .r-sec-copy p { font-size: 15px !important; }
+  .r-sec-copy > div > div:first-child { font-size: 12px !important; }
+  .r-sec-facts > div > div > div:last-child { font-size: 15px !important; }
+  /* In the finale the mark lands at the top of the stage and the caption was
+     left 291px below it, adrift with only 57px under it. Raised to sit ~15vh
+     under the mark, which also brings the pair close to optically centred.
+     Linear in vh for the same reason as the copy anchor above. */
+  #sectorFinale { bottom: calc(52.6vh - 201px) !important; }
+  #sectorFinale > div:last-child { font-size: 13px !important; padding: 0 24px; }
+}
+
+/* Sectors, short desktop windows ------------------------------------------- *
+   The index rail and the copy column share the left gutter, but they are
+   anchored to different things: the rail hangs off the top of the stage
+   (21vh) while the copy is vertically centred. They pass through each other
+   as the window gets shorter — at 1440x720 the rail runs 151-297 and the copy
+   starts at 259, printing "Commercial" through "Sector 05". They only clear
+   each other above ~950px of viewport height, which is taller than most
+   laptops.
+
+   Fix by anchoring the rail to its bottom edge instead, 24px above the copy.
+   Every copy block is exactly 202px tall, so the copy's top edge is a fixed
+   50vh - 101px and the rail's bottom edge is 50vh - 125px — i.e. an offset of
+   50% + 125px, whatever the rail's own height turns out to be. The max() is
+   what preserves the tall-window design: past ~930px the old 190px top is the
+   lower of the two and wins back.                                            */
+@media (min-width: 1200px) {
+  .r-sec-index {
+    top: auto !important;
+    bottom: max(calc(50% + 125px), calc(100% - 336px)) !important;
+  }
+}
+/* Below ~780px the rail's 146px stops clearing the header by a readable
+   margin — measured at 750 against the 94px bar it had 10px, and the 70px bar
+   only moves that floor down — so the type tightens to a 119px stack, which
+   buys back ~27px. Below ~710px even that is through the header and the rail
+   goes entirely: the sector name at the top of the stage already says which
+   one is on screen, which is the same call the sub-1200px layout makes. */
+@media (min-width: 1200px) and (max-height: 779.98px) {
+  .r-sec-index { gap: 6px !important; }
+  .r-sec-index > div { font-size: 16px !important; }
+}
+@media (min-width: 1200px) and (max-height: 709.98px) {
+  .r-sec-index { display: none !important; }
+}
+
+/* In the finale the mark shrinks and lifts 5vh, but the caption pair stayed put
+   at 8vh/96px off the floor, leaving only 43px under the mark against 72px of
+   floor below it. Dropped so the mark can breathe: ~61px above, ~54px below at
+   900. Desktop only — the sub-1200px layouts re-anchor this block themselves. */
+@media (min-width: 1200px) {
+  #sectorFinale { bottom: clamp(34px, 6vh, 72px) !important; }
+}
+
+/* Partners ----------------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  .r-logo-grid > div { min-height: clamp(110px, 15vw, 150px) !important; }
+  /* The cell borders are authored per-cell for a 4-up grid, so the rules land
+     in the wrong places once it is 2-up. Redrawn for two columns. */
+  .r-logo-grid > div {
+    border-right: 1px solid rgba(20,20,20,.13) !important;
+    border-bottom: 1px solid rgba(20,20,20,.13) !important;
+  }
+  .r-logo-grid > div:nth-child(2n) { border-right: none !important; }
+  .r-logo-grid > div:nth-last-child(-n+2) { border-bottom: none !important; }
+}
+@media (max-width: 809.98px) {
+  .r-logo-grid > div { min-height: 96px !important; padding: 18px 14px !important; }
+  .r-logo-grid img   { height: 20px !important; max-width: 104px !important; }
+}
+
+/* How it works — the lifecycle panels -------------------------------------- *
+   Six equal panels share one 415px-tall row and a script animates flex-grow to
+   expand the active one. Below 1200 valad.io swaps that row for a single
+   stacked variant — the same one for tablet and mobile — so this tier rebuilds
+   it the same way: every panel stays a box, full width, icon then text — the
+   closed ones a faint tint on the dark ground, the open one filled white with
+   its description showing. Width has no free space to distribute,
+   so the flex-grow the script animates does nothing here; the open state is
+   read off the [data-active] attribute it also writes, and every colour it
+   sets inline has to be overridden because it keeps writing them at all
+   widths.                                                                    */
+@media (max-width: 1199.98px) {
+  #chainRow { flex-direction: column !important; gap: 12px !important; }
+  #chainRow > [data-panel] {
+    height: auto !important;
+    flex: none !important;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: flex-start !important;
+    gap: 20px;
+    padding: 20px !important;
+    background: rgba(243,242,238,.04) !important;
+    transition: background-color 620ms ease;
+  }
+  #chainRow > [data-panel][data-active] {
+    align-items: flex-start;
+    background: #FFFFFF !important;
+  }
+
+  #chainRow [data-icon] {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 10px;
+    opacity: 1 !important;
+    background: rgba(255,255,255,.08) !important;
+  }
+  #chainRow [data-icon] svg { stroke: #fff !important; }
+  #chainRow [data-active] [data-icon] { background: rgba(20,20,20,.06) !important; }
+  #chainRow [data-active] [data-icon] svg { stroke: #151515 !important; }
+
+  /* The text column is the panel's only other child. Its authored 20px gap is
+     dropped and re-applied as padding on the description, so a closed row does
+     not carry 20px of dead space above its collapsed body. */
+  #chainRow > [data-panel] > div:not([data-icon]) {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 0 !important;
+  }
+  #chainRow > [data-panel][data-active] > div:not([data-icon]) { padding-top: 8px; }
+
+  #chainRow [data-title] { color: #EDEBE6 !important; }
+  #chainRow [data-active] [data-title] { color: #151515 !important; }
+
+  #chainRow [data-body] {
+    max-width: none !important;
+    opacity: 0 !important;
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    color: rgba(20,20,20,.5) !important;
+    transition: opacity 420ms ease,
+                max-height 560ms cubic-bezier(.22,.61,.36,1),
+                padding-top 560ms cubic-bezier(.22,.61,.36,1) !important;
+  }
+  #chainRow [data-active] [data-body] {
+    opacity: 1 !important;
+    max-height: 200px !important;
+    padding-top: 14px !important;
+  }
+}
+
+/* News cards --------------------------------------------------------------- *
+   The same card runs on the homepage teaser and in the News page grid, both
+   authored at 20px. The global map would take it to 18px, which is where the
+   body copy sits — the headline has to stay a step clear of it, so both
+   instances are pinned rather than just the homepage one.                     */
+@media (max-width: 809.98px) {
+  [data-screen-label="News"] [data-news-card] h3,
+  #storyGrid > a h3 { font-size: 20px !important; }
+}
+
+/* Team carousel ------------------------------------------------------------ */
+@media (max-width: 809.98px) {
+  /* Narrow enough that the next card peeks and reads as scrollable. No scroll
+     snapping: the row carries its gutter as padding, and a mandatory snap
+     immediately eats it by aligning the first card to the snapport edge. */
+  #teamRow > div { flex: 0 0 min(76vw, 300px) !important; }
+}
+
+/* Offices map -------------------------------------------------------------- */
+@media (max-width: 1199.98px) { .r-officesmap { height: min(560px, 62vh) !important; } }
+@media (max-width: 809.98px)  { .r-officesmap { height: min(420px, 52vh) !important; } }
+
+
+/* ==========================================================================
+   5. About
+   ========================================================================== */
+
+/* Values scroller ---------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  .r-val-names {
+    left: var(--valad-gutter) !important;
+    right: var(--valad-gutter) !important;
+    top: clamp(96px, 15vh, 150px) !important;
+    transform: none !important;
+  }
+  .r-val-quotes {
+    left: var(--valad-gutter) !important;
+    right: var(--valad-gutter) !important;
+    width: auto !important;
+    bottom: clamp(70px, 12vh, 130px) !important;
+    height: 190px !important;
+  }
+}
+@media (max-width: 809.98px) {
+  /* Scoped to the value names themselves — the unscoped `> div` also caught
+     the "Our values" eyebrow above them, blowing a 13px uppercase label up to
+     26px and taking its .08em tracking with it. The names now sit at 36px on
+     desktop — the homepage's display step — so they land on 28px here, the
+     step 36px maps to everywhere else on mobile. */
+  .r-val-names > div[data-vname] { font-size: 28px !important; }
+  .r-val-quotes { height: 210px !important; }
+  .r-val-quotes p { font-size: 18px !important; }
+}
+
+/* Journey scroller --------------------------------------------------------- *
+   The stage text is 28px on desktop now, which the global map already steps to
+   24px here, so this tier only has the panel height left to set.              */
+@media (max-width: 1199.98px) { .r-journey-stage { height: 300px !important; } }
+@media (max-width: 809.98px)  { .r-journey-stage { height: 340px !important; } }
+
+/* Careers teaser ----------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  .r-teaser { grid-template-columns: minmax(0, 1fr) !important; }
+  .r-teaser > div:first-child { aspect-ratio: 16/9 !important; }
+}
+
+
+/* ==========================================================================
+   6. Portfolio + News (shared filter / grid / modal patterns)
+   ========================================================================== */
+
+@media (max-width: 1199.98px) {
+  .r-filters { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: clamp(20px, 4vw, 40px) !important; }
+  #assetGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  #storyGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  /* Cell borders are authored per-cell for the desktop column count, so they
+     land in the wrong places once the grid is 2-up. Redrawn for two columns. */
+  #assetGrid > a, #storyGrid > a {
+    border-right: 1px solid rgba(20,20,20,.18) !important;
+    border-bottom: 1px solid rgba(20,20,20,.18) !important;
+  }
+  #assetGrid > a:nth-child(2n), #storyGrid > a:nth-child(2n) { border-right: none !important; }
+  .r-lead-story { grid-template-columns: minmax(0, 1fr) !important; }
+  .r-lead-story > div:first-child { border-right: none !important; border-bottom: 1px solid rgba(20,20,20,.18) !important; }
+}
+@media (max-width: 809.98px) {
+  .r-filters { grid-template-columns: minmax(0, 1fr) !important; gap: 22px !important; }
+  #storyGrid { grid-template-columns: minmax(0, 1fr) !important; }
+  #storyGrid > a { border-right: none !important; }
+  /* The lead story is a step above the grid cards and has to stay that way: the
+     global map takes its 24px to 18px, which is below the 20px the story cards
+     hold here. 22px keeps the two ranked in the right order. */
+  .r-lead-story h2 { font-size: 22px !important; }
+}
+
+/* Detail drawers ----------------------------------------------------------- *
+   The drawer is a right-hand panel at 84vw split into image | copy. Below 1024
+   it becomes the whole screen with the image stacked on top of the copy.      */
+@media (max-width: 1199.98px) {
+  .r-modal-panel {
+    width: 100% !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    box-shadow: none !important;
+  }
+  .r-modal-img { height: clamp(200px, 34vh, 320px) !important; }
+  .r-modal-panel > div:last-child { justify-content: flex-start !important; padding: 34px 24px 44px !important; }
+  .r-modal-panel > div:last-child > p { max-width: none !important; }
+}
+@media (max-width: 809.98px) {
+  /* The drawer title is 24px on desktop, which the global map would take to
+     18px — smaller than the 20px card the drawer was opened from. It holds the
+     card's size instead. */
+  .r-modal-panel h3 { font-size: 20px !important; }
+  /* Three metadata columns divided by rules do not fit; they wrap instead. */
+  .r-modal-meta { flex-wrap: wrap !important; gap: 20px 26px !important; }
+  .r-modal-meta > div { padding-right: 26px !important; }
+  .r-modal-meta > div:last-child { border-right: none !important; }
+}
+
+
+/* ==========================================================================
+   7. Contact
+   ========================================================================== */
+@media (max-width: 1199.98px) {
+  .r-contactmap { height: min(400px, 46vh) !important; }
+}
+@media (max-width: 809.98px) {
+  .r-contactmap { height: min(300px, 38vh) !important; }
+  /* Contact's hero headline is empty, so "Get in touch at contact@valad.io" is
+     the page's opening line rather than a standfirst under one. It is authored
+     at the 32px the enquiry heading below it uses, and takes that heading's
+     mobile size with it — the shared `.r-page-lede` rule in section 2 would
+     otherwise pull it back to the 15px the other three pages want. */
+  [data-screen-label="Contact"] .r-page-lede {
+    font-size: 24px !important;
+    line-height: 1.3 !important;
+  }
+  /* The city row and the address row are two separate grids that read as one
+     table, so both keep three columns — dropping one to a single column would
+     break the pairing. They shrink instead. */
+  .r-offices { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 10px !important; }
+  .r-offices-cities > div { font-size: 14px !important; }
+  .r-offices-addr > div   { font-size: 12px !important; line-height: 1.45 !important; }
+}
+
+
+/* ==========================================================================
+   8. Careers
+   ========================================================================== */
+@media (max-width: 1199.98px) {
+  .r-careers-intro { align-items: start !important; }
+  .r-careers-intro > div:last-child { justify-content: flex-start !important; }
+  .r-life > div:first-child { min-height: clamp(240px, 40vh, 380px) !important; }
+}
+
+/* ── News: stacked sticky cards on mobile ────────────────────────────────
+   Mirrors the scroll-stacking product cards on valad.io (each card pins
+   near the top and the next one rides up over it), recoloured into the
+   Valad light palette: grey cards on the section's white ground rather
+   than valad.io's near-black. Desktop keeps the plain three-up grid, so
+   this whole behaviour is scoped to the same <810px breakpoint the rest
+   of the mobile rules use.
+
+   The stack is pure CSS: siblings that are position:sticky with stepped
+   top offsets naturally overlap as the page scrolls, and the cards' own
+   height supplies the scroll distance — no wrapper elements and no JS.
+   Each card must be opaque, or the one beneath shows through. */
+@media (max-width: 809.98px) {
+  .r-news-grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 18px !important;
+    /* Trailing room so each card has somewhere to stay pinned while the
+       ones after it ride up: a sticky item can only travel inside its
+       parent's box, so without slack here the stack never engages. The
+       grid carries an inline `padding:0 var(--valad-gutter)` shorthand,
+       which zeroes the bottom — !important is what outranks it. */
+    /* No trailing slack: the last card unpins as soon as it lands, which
+       keeps the gap under the deck equal to the gap above it. Cards 1 and 2
+       still stack — their sticky travel comes from the cards below them,
+       not from this padding. */
+    padding-bottom: 0 !important;
+  }
+  .r-news-grid [data-news-card] {
+    position: sticky;
+    background: #EDECE8;
+    padding: 18px 18px 26px;
+    border: 1px solid rgba(20, 20, 20, .10);
+    gap: 16px !important;
+    /* Lifts each card off the one it covers so the stack reads as depth
+       rather than a flat recolour. */
+    box-shadow: 0 -8px 24px rgba(20, 20, 20, .06);
+  }
+  /* Stepped offsets leave a sliver of every buried card visible — the
+     "deck" read. Even steps, so the exposed edges stay equal. */
+  /* The section's generous desktop bottom padding doubles up with the grid's
+     under a stacked deck, reading as dead space. Match the 41px above. */
+  #news { padding-bottom: clamp(34px, 5vh, 54px) !important; }
+  .r-news-grid [data-news-card]:nth-child(1) { top: 78px; }
+  .r-news-grid [data-news-card]:nth-child(2) { top: 96px; }
+  .r-news-grid [data-news-card]:nth-child(3) { top: 114px; }
+  /* The article image sits flush with the card's top and side edges — the
+     padding only applies below it, to the date and headline. Negative
+     margins pull it back out over the card's own padding. */
+  .r-news-grid [data-news-card] > div:first-child {
+    margin: -18px -18px 0;
+    /* The element carries an inline width:100%, which resolves against the
+       content box and so stops 18px short on each side once the negative
+       margins pull it outward. Add both gutters back. */
+    width: calc(100% + 36px) !important;
+  }
+  /* The card's own reveal transition animates transform; a sticky element
+     that is also transformed creates a containing block and stops pinning,
+     so the reveal is reduced to a fade here. */
+  .r-news-grid [data-news-card][data-reveal] { transform: none !important; }
+}
