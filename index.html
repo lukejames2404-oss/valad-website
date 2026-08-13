@@ -668,10 +668,46 @@ class Component extends DCLogic {
     };
     if (this.reduced || !("IntersectionObserver" in window)) { els.forEach(show); return; }
     if (this.io) this.io.disconnect();
+
+    // An element inside a horizontally scrolling rail (the team carousel)
+    // sits outside the viewport sideways, so it never intersects and never
+    // gets un-hidden — it stays at opacity:0 permanently rather than just
+    // un-animated. Watch the rail itself and reveal everything in it at
+    // once, keeping each item's own data-delay for the stagger.
+    const railOf = (el) => {
+      let p = el.parentElement;
+      while (p && p !== document.body) {
+        const ox = getComputedStyle(p).overflowX;
+        if ((ox === "auto" || ox === "scroll") && p.scrollWidth > p.clientWidth + 4) return p;
+        p = p.parentElement;
+      }
+      return null;
+    };
+    const rails = new Map();
+    const loose = [];
+    els.forEach((el) => {
+      const rail = railOf(el);
+      if (rail) { if (!rails.has(rail)) rails.set(rail, []); rails.get(rail).push(el); }
+      else loose.push(el);
+    });
+
     this.io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) { show(e.target); this.io.unobserve(e.target); } });
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const group = rails.get(e.target);
+        if (group) group.forEach(show); else show(e.target);
+        this.io.unobserve(e.target);
+      });
     }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
-    els.forEach((el) => this.io.observe(el));
+    loose.forEach((el) => this.io.observe(el));
+    rails.forEach((_, rail) => this.io.observe(rail));
+
+    // Safety net: anything still hidden after the page has settled is shown
+    // outright. A reveal that never fires hides content, which is far worse
+    // than losing the animation.
+    setTimeout(() => {
+      els.forEach((el) => { if (getComputedStyle(el).opacity === "0") show(el); });
+    }, 2600);
   }
   countUp(el) {
     if (this.reduced || el.dataset.counted) return;

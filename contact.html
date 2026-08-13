@@ -151,10 +151,39 @@ class Component extends DCLogic {
       setTimeout(() => { el.style.opacity = "1"; el.style.transform = "none"; }, this.reduced ? 0 : d);
     };
     if (this.reduced || !("IntersectionObserver" in window)) { els.forEach(show); return; }
+    // Elements inside a horizontally scrolling rail never intersect the
+    // viewport sideways, so they would stay at opacity:0 — hidden, not
+    // merely un-animated. Watch the rail and reveal its contents together.
+    const railOf = (el) => {
+      let p = el.parentElement;
+      while (p && p !== document.body) {
+        const ox = getComputedStyle(p).overflowX;
+        if ((ox === "auto" || ox === "scroll") && p.scrollWidth > p.clientWidth + 4) return p;
+        p = p.parentElement;
+      }
+      return null;
+    };
+    const rails = new Map(), loose = [];
+    els.forEach((el) => {
+      const rail = railOf(el);
+      if (rail) { if (!rails.has(rail)) rails.set(rail, []); rails.get(rail).push(el); }
+      else loose.push(el);
+    });
     this.io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) { show(e.target); this.io.unobserve(e.target); } });
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const group = rails.get(e.target);
+        if (group) group.forEach(show); else show(e.target);
+        this.io.unobserve(e.target);
+      });
     }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
-    els.forEach((el) => this.io.observe(el));
+    loose.forEach((el) => this.io.observe(el));
+    rails.forEach((_, rail) => this.io.observe(rail));
+    // Safety net: a reveal that never fires hides content outright, which is
+    // far worse than losing the animation.
+    setTimeout(() => {
+      els.forEach((el) => { if (getComputedStyle(el).opacity === "0") show(el); });
+    }, 2600);
   }
   scrubHeadings() {
     if (!this.$scrub || !this.$scrub.length) return;
