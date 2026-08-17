@@ -1106,6 +1106,18 @@
 @media (max-width: 809.98px) {
   .r-cta-band { height: 875px; padding: 200px var(--valad-gutter); }
   .r-cta-band-head { font-size: 24px; line-height: 33.6px; max-width: 350px; }
+
+  /* The renders are held still at this width. header-scroll.js still computes
+     the scroll progress and writes `--cta-v` inline on the band, so pinning it
+     to 0 needs `!important` to beat that — an author `!important` outranks a
+     normal inline declaration, which is the one case where it does.
+
+     Doing it here rather than by branching in the script means it is the
+     breakpoint that decides, so it stays correct through a resize in either
+     direction with no stale value left behind on the element. Zero is the
+     resting state the CSS already falls back to, and the mobile geometry above
+     was measured off valad.io at rest, so frozen is the composition as read. */
+  .r-cta-band { --cta-v: 0 !important; }
   /* An earlier note here reasoned that at 390 the plate was too narrow for a
      faithful scatter, so C and D were dropped and A and B were shrunk. Measured
      against the live site at 390, that was wrong on both counts: valad.io keeps

@@ -96,6 +96,12 @@
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
   if (still && still.matches) return;
 
+  /* Below 810 the renders are held still. That is pinned in responsive.css
+     rather than branched on here — `.r-cta-band { --cta-v: 0 !important }` in
+     the mobile block outranks what this writes inline, so the breakpoint owns
+     the decision and nothing stale survives a resize. This keeps computing
+     either way; it is one rect read and one property write on one element. */
+
   var FROM = 2;      /* v as the band enters — scale 3, full drift */
   var TO = 0;        /* v once it has settled — scale 1, no drift  */
   var ticking = false;
