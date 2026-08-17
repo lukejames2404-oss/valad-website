@@ -718,18 +718,21 @@
 /* Partners ----------------------------------------------------------------- */
 @media (max-width: 1199.98px) {
   .r-logo-grid > div { min-height: clamp(110px, 15vw, 150px) !important; }
-  /* The cell borders are authored per-cell for a 4-up grid, so the rules land
-     in the wrong places once it is 2-up. Redrawn for two columns. */
-  .r-logo-grid > div {
-    border-right: 1px solid rgba(20,20,20,.13) !important;
-    border-bottom: 1px solid rgba(20,20,20,.13) !important;
-  }
-  .r-logo-grid > div:nth-child(2n) { border-right: none !important; }
-  .r-logo-grid > div:nth-last-child(-n+2) { border-bottom: none !important; }
+  /* Three columns all the way down, overriding the shared `.r-4col` two-up.
+     Nine partners divide evenly by three and by nothing else useful: at two
+     columns the ninth would sit alone on a fifth row. Holding three also keeps
+     the grid the shape valad.io runs at every width.
+
+     The per-cell borders that used to be redrawn here are gone — the rules are
+     the grid's own background showing through its 1px gaps, which lands them
+     correctly at any column count without being restated per breakpoint. */
+  .r-logo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
 @media (max-width: 809.98px) {
-  .r-logo-grid > div { min-height: 96px !important; padding: 18px 14px !important; }
-  .r-logo-grid img   { height: 20px !important; max-width: 104px !important; }
+  .r-logo-grid > div { min-height: 96px !important; padding: 18px 12px !important; }
+  /* A third of the 350 column is ~115px, and 24px of that is padding, so the
+     mark has to come in from the 104px it could take at two-up. */
+  .r-logo-grid img   { height: 18px !important; max-width: 88px !important; }
 }
 
 /* How it works — the lifecycle panels -------------------------------------- *
@@ -935,6 +938,30 @@
   .r-contactmap { height: min(400px, 46vh) !important; }
 }
 @media (max-width: 809.98px) {
+  /* The opening section is held to the screen so the closing band starts below
+     the fold. It ran 754px in an 844px window, which left the band's top 90px
+     showing on load — and the band's first render bleeds off its own top edge,
+     so what appeared under the addresses was a slice of photograph. `svh` is
+     the viewport with the browser chrome expanded, which is the state a page
+     loads in, so this is the height that matters for the first glance; it is
+     the same unit the hero is held to. Extra space falls below the content
+     rather than recentring it, since the section closes on 0 bottom padding.
+     Scoped by class: `[data-screen-label="Contact"]` also matches the closing
+     band section on the homepage, which must not grow. */
+  .r-contact-lead {
+    min-height: 100vh;
+    min-height: 100svh;
+    box-sizing: border-box;
+    /* Centred rather than left to sit at the top: the section is now taller
+       than its content, and as a plain block all of that slack collected into
+       one dead gap under the addresses. Centring splits it above and below, so
+       the page reads as composed to the screen rather than padded out. The
+       100px top padding still clears the fixed header first — `center` works on
+       what is left after it. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .r-contactmap { height: min(300px, 38vh) !important; }
   /* Contact's hero headline is empty, so "Get in touch at contact@valad.io" is
      the page's opening line rather than a standfirst under one. It is authored

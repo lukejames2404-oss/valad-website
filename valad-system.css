@@ -284,6 +284,26 @@ select {
    15px as the links instead, which is a content decision, not a metric. */
 .r-foot-nav a { line-height: 22.5px; }
 
+/* Partner logos -------------------------------------------------------------
+   A note on the two fills, because they look redundant and are not: the cells
+   are painted the same colour as the section they sit in, and the grid beneath
+   them is painted #CCCBC8. Nothing of the grid is visible except the 1px gaps
+   between cells, so the fills are what make the rules read as rules rather than
+   as a grey block. valad.io does the same and its cells are #EDECE8 because its
+   section is; this section is white, so these are white. Change the section
+   background and these have to follow it.
+
+   valad.io does not show its partners in brand colour. It ships white and grey
+   monochrome artwork and puts `filter: invert(0.8)` on the wrapper, so white
+   (255) lands at 255*0.2 = 51 — every mark renders as a flat #333333.
+
+   The same trick cannot be applied here, because these are full-colour brand
+   assets rather than white ones: inverting them would produce photo negatives.
+   `brightness(0)` first crushes any colour to black while keeping the alpha
+   shape, and `invert(.2)` then lifts black to 0 + 255*0.2 = 51 — the identical
+   #333333, arrived at from a colour source instead of a white one. */
+.r-logo-grid img { filter: brightness(0) invert(.2); }
+
 /* Footer column rules -------------------------------------------------------
    Each footer column opens on a 1px rule. An earlier spec recorded valad.io's
    columns as having "no top border — border-top: 0px none, the separation is
