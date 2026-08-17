@@ -113,7 +113,7 @@
           el.style.cssText = "position:absolute;width:172px;padding:18px 20px 20px;background:#FFFFFF;border:1px solid rgba(20,20,20,.07);border-radius:6px;box-shadow:0 10px 34px rgba(20,20,20,.10);opacity:0;transform:translateY(6px);transition:opacity 260ms ease,transform 260ms ease;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif";
           const name = document.createElement("div");
           name.textContent = o.name;
-          name.style.cssText = "font-size:20px;line-height:1.1;letter-spacing:0;color:#151515";
+          name.style.cssText = "font-size:20px;line-height:1.1;letter-spacing:0;color:#141414";
           const addr = document.createElement("div");
           addr.textContent = o.addr.join(", ");
           addr.style.cssText = "margin-top:12px;font-size:12px;line-height:1.55;letter-spacing:0;color:rgba(20,20,20,.62)";
@@ -134,6 +134,13 @@
           w = nw; h = nh;
           canvas.width = w * dpr; canvas.height = h * dpr;
           layer.width = w * dpr; layer.height = h * dpr;
+          /* Zooming out does not make this map read smaller. Centred at 50.5N
+             there is land in every direction, so a lower factor only trades
+             Britain for more of Europe at the same coverage — measured at 1.25
+             the coastline still ran off the top, bottom and right edges (0, 2
+             and 1px of margin) while opening 292px of empty Atlantic on the
+             left, which put the composition off balance. The frame is meant to
+             be filled; its size on the page is what governs how big it reads. */
           proj.translate([w / 2, h / 2]).center([2, 50.5]).scale(Math.max(240, nw * 1.9));
           return true;
         };

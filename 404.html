@@ -9,7 +9,7 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<meta name="theme-color" content="#151515">
+<meta name="theme-color" content="#141414">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -19,7 +19,7 @@
 <style>
   html,body{margin:0;padding:0;background:#EDECE8}
   *{box-sizing:border-box}
-  a{color:#151515;text-decoration:none;transition:color 180ms ease,opacity 180ms ease,background-color 180ms ease}
+  a{color:#141414;text-decoration:none;transition:color 180ms ease,opacity 180ms ease,background-color 180ms ease}
   a:hover{color:#BAD2FF}
   a:focus-visible{outline:2px solid currentColor;outline-offset:3px}
   select{appearance:none;-webkit-appearance:none;background:transparent;border:none;border-radius:0;outline:none;cursor:pointer}
@@ -36,8 +36,8 @@
   [data-story]:hover image-slot{filter:brightness(1.04) saturate(1.04)}
   #storyModalImage image-slot{filter:none}
 </style>
-<link rel="stylesheet" href="valad-system.css?v=2">
-<link rel="stylesheet" href="responsive.css?v=25">
+<link rel="stylesheet" href="valad-system.css?v=8">
+<link rel="stylesheet" href="responsive.css?v=37">
 <script defer src="./header-scroll.js"></script>
 </helmet>
 <header class="r-header r-header--light" style="position: fixed;top:0;left:0;width:100%;z-index:60;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:stretch;padding:24px var(--valad-gutter);height:var(--valad-header-h);box-sizing:border-box;transition:background-color 420ms ease,box-shadow 420ms ease,backdrop-filter 420ms ease">
@@ -47,43 +47,39 @@
   <input type="checkbox" id="rnav" class="r-navtoggle" tabindex="-1">
   <label for="rnav" class="r-navbtn" aria-label="Toggle navigation menu"><span></span><span></span><span></span></label>
   <nav class="r-nav" style="display:flex;align-items:center;justify-content:flex-start;gap:32px;padding-left:50px;white-space:nowrap">
-    <a href="about.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#151515;padding:8px 2px" style-hover="opacity:.55">About</a>
-    <a href="portfolio.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#151515;padding:8px 2px" style-hover="opacity:.55">Portfolio</a>
-    <a href="#sectorScroll" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#151515;padding:8px 2px" style-hover="opacity:.55">Services</a>
-    <a href="news.html" class="r-current" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#151515;padding:8px 2px;border-bottom:1px solid #BAD2FF" style-hover="opacity:.55">News</a>
-    <a href="contact.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#151515;padding:8px 2px" style-hover="opacity:.55">Contact</a>
+    <a href="about.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#141414;padding:8px 2px" style-hover="opacity:.55">About</a>
+    <a href="portfolio.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#141414;padding:8px 2px" style-hover="opacity:.55">Portfolio</a>
+    <a href="#sectorScroll" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#141414;padding:8px 2px" style-hover="opacity:.55">Services</a>
+    <a href="news.html" class="r-current" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#141414;padding:8px 2px;border-bottom:1px solid #BAD2FF" style-hover="opacity:.55">News</a>
+    <a href="contact.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:#141414;padding:8px 2px" style-hover="opacity:.55">Contact</a>
   </nav>
-  <a href="#contact" class="r-cta" style="display:inline-flex;align-items:center;height:44px;padding:0 22px;border-radius:60px;background:#151515;color:#EDECE8;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;white-space:nowrap" style-hover="color:#fff;background:#000">Digital Assets Division</a>
+  <a target="_blank" rel="noopener" href="https://valad.io" class="r-cta" style="display:inline-flex;align-items:center;height:44px;padding:0 22px;border-radius:60px;background:#141414;color:#EDECE8;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;white-space:nowrap" style-hover="color:#fff;background:#000">Digital Assets Division</a>
 </header>
-<section data-screen-label="Not found" style="background:#EDECE8;padding:clamp(150px,22vh,240px) var(--valad-gutter) clamp(100px,16vh,180px);min-height:70vh">
+<section data-screen-label="Not found" style="background:#EDECE8;padding:var(--v-space-3xl) var(--valad-gutter) var(--v-space-xl);min-height:70vh">
   <div style="max-width:820px;margin:0 auto">
     <div style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:rgba(20,20,20,.45)">Error 404</div>
-    <h1 style="margin:22px 0 0;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-weight:300;font-size:clamp(28px,3.4vw,44px);line-height:1.14;letter-spacing:0px;color:#151515;text-wrap:pretty">This page could not be found</h1>
-    <p style="margin:26px 0 0;max-width:560px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-weight:300;font-size:17px;line-height:1.6;letter-spacing:0px;color:rgba(20,20,20,.72)">The page may have moved, or the address may be incorrect.</p>
+    <h1 style="margin:22px 0 0;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-weight:300;font-size:clamp(28px,3.4vw,44px);line-height:1.14;letter-spacing:0px;color:#141414;text-wrap:pretty">This page could not be found</h1>
+    <p style="margin:26px 0 0;max-width:560px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-weight:400;font-size:17px;line-height:1.6;letter-spacing:0px;color:rgba(20,20,20,.72)">The page may have moved, or the address may be incorrect.</p>
     <div style="margin-top:clamp(40px,6vh,64px);display:flex;flex-wrap:wrap;gap:clamp(20px,3vw,38px)">
-      <a href="/" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#151515;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">Home</a>
-      <a href="portfolio.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#151515;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">Portfolio</a>
-      <a href="news.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#151515;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">News &amp; insight</a>
-      <a href="contact.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#151515;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">Contact</a>
+      <a href="/" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#141414;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">Home</a>
+      <a href="portfolio.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#141414;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">Portfolio</a>
+      <a href="news.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#141414;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">News &amp; insight</a>
+      <a href="contact.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;color:#141414;border-bottom:1px solid rgba(20,20,20,.4);padding-bottom:3px">Contact</a>
     </div>
   </div>
 </section>
-<footer data-screen-label="Footer" style="background:#151515;padding:clamp(110px,15vh,160px) var(--valad-gutter) clamp(110px,14vh,150px)">
-  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px">
-    <h2 style="margin:0;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-weight:300;font-size:28px;line-height:1.6;letter-spacing:0px;color:#F3F2EE;text-wrap:pretty">Unlocking Value by Transforming Real Estate.</h2>
-  </div>
-
-  <div class="r-foot-nav" style="margin-top:clamp(90px,13vh,130px);display:grid;grid-template-columns:1.55fr 1fr 1fr 1fr;gap:24px">
+<footer data-screen-label="Footer" style="background:#141414;padding:80px var(--valad-gutter)">
+  <div class="r-foot-nav" style="display:grid;grid-template-columns:1.55fr 1fr 1fr 1fr;gap:24px">
     <div style="padding-top:24px">
       <img src="assets/logo-valad-light-340.png" alt="Valad" style="height:22px;width:auto;display:block">
     </div>
-    <div style="padding-top:24px;display:flex;flex-direction:column;gap:18px">
+    <div style="padding-top:24px;display:flex;flex-direction:column;gap:32px">
       <div style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,242,238,.4)">Company</div>
       <a href="/" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:rgba(243,242,238,.75)" style-hover="opacity:.6">Home</a>
       <a href="about.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:rgba(243,242,238,.75)" style-hover="opacity:.6">About</a>
       <a href="careers.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:rgba(243,242,238,.75)" style-hover="opacity:.6">Careers</a>
     </div>
-    <div style="padding-top:24px;display:flex;flex-direction:column;gap:18px">
+    <div style="padding-top:24px;display:flex;flex-direction:column;gap:32px">
       <div style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,242,238,.4)">Explore</div>
       <a href="portfolio.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:rgba(243,242,238,.75)" style-hover="opacity:.6">Portfolio</a>
       <a href="news.html" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:0px;color:rgba(243,242,238,.75)" style-hover="opacity:.6">News</a>
@@ -91,14 +87,14 @@
     </div>
   </div>
 
-  <div class="r-foot-addr" style="margin-top:clamp(80px,11vh,110px);display:grid;grid-template-columns:1.55fr 1fr 1fr 1fr;gap:24px">
+  <div class="r-foot-addr" style="margin-top:48px;display:grid;grid-template-columns:1.55fr 1fr 1fr 1fr;gap:24px">
     <div style="padding-top:24px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;letter-spacing:0px;color:rgba(243,242,238,.4)">Copyright © 2026 Valad Group.<br>All rights reserved.</div>
     <div style="padding-top:24px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;letter-spacing:0px;color:rgba(243,242,238,.45)">71–75 Shelton Street<br>Covent Garden, London<br>WC2H 9JQ</div>
     <div style="padding-top:24px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;letter-spacing:0px;color:rgba(243,242,238,.45)">44 Esplanade<br>St Helier<br>Jersey JE4 9WG</div>
     <div style="padding-top:24px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;letter-spacing:0px;color:rgba(243,242,238,.45)">2 Rue Eugène Ruppert<br>L-2453 Luxembourg</div>
   </div>
 
-  <p style="margin:clamp(56px,7vh,72px) 0 0;max-width:1400px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.5;letter-spacing:0px;color:rgba(243,242,238,.32)">Valad Asset Management Ltd. is a real estate asset and investment management company providing strategic, investment, development and asset management services in relation to real estate assets and projects. Valad Asset Management Ltd. does not operate, manage or promote collective investment schemes, investment funds or pooled investment vehicles, and does not accept or manage client money or investments on a discretionary basis. The company does not provide regulated investment advice, financial advice or investment management services, unless expressly stated otherwise and undertaken through an appropriately authorised or regulated entity. The information contained on this website is provided for general information and illustrative purposes only. It does not constitute, and should not be relied upon as, investment, financial, legal, tax or other professional advice. Nothing on this website constitutes a prospectus, offering memorandum, financial promotion, invitation, solicitation or offer to buy, sell or subscribe for any security, investment, fund interest or other financial instrument. Any references to investment opportunities, projects, assets, financial performance, projected returns, valuations or development outcomes are provided for informational purposes only and should not be interpreted as a recommendation, guarantee or representation of future performance. Past performance is not necessarily indicative of future results, and the value of real estate assets may rise or fall. Valad Asset Management Ltd. may provide asset management, development management, advisory and related services to property-owning companies, project-specific vehicles, institutional investors and other third-party entities. Any such entity operates independently and remains responsible for its own legal, regulatory and investment activities. The information on this website may be amended or withdrawn without notice. While reasonable care is taken to ensure that the information is accurate, complete and up to date, no representation or warranty is given, whether express or implied, regarding its accuracy or completeness. Valad Asset Management Ltd. accepts no liability for any loss arising from reliance on information contained on this website.</p>
+  <p style="margin:48px 0 0;max-width:1400px;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;letter-spacing:0px;color:rgba(243,242,238,.32)">Valad Asset Management Ltd. is a real estate asset and investment management company providing strategic, investment, development and asset management services in relation to real estate assets and projects. Valad Asset Management Ltd. does not operate, manage or promote collective investment schemes, investment funds or pooled investment vehicles, and does not accept or manage client money or investments on a discretionary basis. The company does not provide regulated investment advice, financial advice or investment management services, unless expressly stated otherwise and undertaken through an appropriately authorised or regulated entity. The information contained on this website is provided for general information and illustrative purposes only. It does not constitute, and should not be relied upon as, investment, financial, legal, tax or other professional advice. Nothing on this website constitutes a prospectus, offering memorandum, financial promotion, invitation, solicitation or offer to buy, sell or subscribe for any security, investment, fund interest or other financial instrument. Any references to investment opportunities, projects, assets, financial performance, projected returns, valuations or development outcomes are provided for informational purposes only and should not be interpreted as a recommendation, guarantee or representation of future performance. Past performance is not necessarily indicative of future results, and the value of real estate assets may rise or fall. Valad Asset Management Ltd. may provide asset management, development management, advisory and related services to property-owning companies, project-specific vehicles, institutional investors and other third-party entities. Any such entity operates independently and remains responsible for its own legal, regulatory and investment activities. The information on this website may be amended or withdrawn without notice. While reasonable care is taken to ensure that the information is accurate, complete and up to date, no representation or warranty is given, whether express or implied, regarding its accuracy or completeness. Valad Asset Management Ltd. accepts no liability for any loss arising from reliance on information contained on this website.</p>
 </footer>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
@@ -194,7 +190,7 @@ class Component extends DCLogic {
       const b = document.createElement("button");
       b.textContent = label;
       b.disabled = !!disabled;
-      b.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(20,20,20," + (disabled ? ".12" : ".3") + ");cursor:" + (disabled ? "default" : "pointer") + ";font-size:16px;line-height:1;color:" + (disabled ? "rgba(20,20,20,.25)" : "#151515") + ";padding:0;font-family:" + font;
+      b.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(20,20,20," + (disabled ? ".12" : ".3") + ");cursor:" + (disabled ? "default" : "pointer") + ";font-size:16px;line-height:1;color:" + (disabled ? "rgba(20,20,20,.25)" : "#141414") + ";padding:0;font-family:" + font;
       if (!disabled) {
         b.addEventListener("mouseenter", () => { b.style.background = "rgba(20,20,20,.05)"; });
         b.addEventListener("mouseleave", () => { b.style.background = "transparent"; });
@@ -207,7 +203,7 @@ class Component extends DCLogic {
       const n = document.createElement("button");
       n.textContent = String(p);
       const isActive = p === this.currentPage;
-      n.style.cssText = "background:transparent;border:none;padding:8px 4px;cursor:pointer;font-size:16px;letter-spacing:0px;font-family:" + font + ";color:" + (isActive ? "#151515" : "rgba(20,20,20,.35)") + ";font-weight:300";
+      n.style.cssText = "background:transparent;border:none;padding:8px 4px;cursor:pointer;font-size:16px;letter-spacing:0px;font-family:" + font + ";color:" + (isActive ? "#141414" : "rgba(20,20,20,.35)") + ";font-weight:300";
       n.addEventListener("click", () => { this.currentPage = p; this.apply(); });
       wrap.appendChild(n);
     }
@@ -285,7 +281,7 @@ class Component extends DCLogic {
     this.$scrub.forEach((el) => {
       const rect = el.getBoundingClientRect();
       const p = this.reduced ? 1 : clamp((startY - rect.top) / (startY - endY));
-      const dark = el.getAttribute("data-scrub-dark") || "#151515";
+      const dark = el.getAttribute("data-scrub-dark") || "#141414";
       const dim = el.getAttribute("data-scrub-dim") || "rgba(20,20,20,.16)";
       const a = (p * 100).toFixed(1);
       const b = Math.min(100, p * 100 + 16).toFixed(1);

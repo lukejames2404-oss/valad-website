@@ -6,11 +6,32 @@
 
    Reference readings (Chrome, 2026-08-12):
 
-     Typeface     Saans VF-TRIAL Variable Light, weight 300, everywhere.
-                  valad.io has no weight variation at all — hierarchy is carried
-                  by size and colour alone. The face is served from Framer as a
-                  single woff2; it is vendored into assets/ so these pages do
-                  not hotlink framerusercontent.com.
+     Typeface     Saans VF-TRIAL Variable Light. The face is served from Framer
+                  as a single woff2; it is vendored into assets/ so these pages
+                  do not hotlink framerusercontent.com.
+
+     Weight       An earlier reading here recorded "weight 300 everywhere,
+                  valad.io has no weight variation at all". That was taken off
+                  `font-weight`, which is indeed 300 on virtually every element
+                  on that site — but the face is variable, and what actually
+                  renders is the `wght` axis in `font-variation-settings`, which
+                  valad.io sets independently and does vary. Re-measured:
+
+                    display  24-64px   300
+                    body     13-20px   400
+                    nav      15px      450
+                    hero CTA 15px      500
+                    footer   15px      350
+                    eyebrow  12px      350
+
+                  So hierarchy is carried by weight as well as size and colour,
+                  on the usual optical principle: display runs light, body sits
+                  at normal, and small UI text is nudged heavier so it holds at
+                  size. The vendored woff2 is the same variable file and its
+                  axis works here — 'Handgloves' at 64px measures 523 / 527.7 /
+                  538.9 / 551.1px at wght 300 / 400 / 500 / 700 — so plain
+                  `font-weight` drives it and no font-variation-settings are
+                  needed. Body sits at 400 below; display re-asserts 300.
 
      Tracking     letter-spacing: normal (0) on every element bar one 15px body
                   style at 0.15px. Matches the project note in CLAUDE.md.
@@ -57,6 +78,21 @@
   /* Page gutter — the single value every section's horizontal padding uses.
      Overridden per breakpoint in responsive.css. */
   --valad-gutter: 80px;
+  /* valad.io does not let the content column grow without limit. Its sections
+     are `padding: 0 80px` around an inner block capped at `max-width: 1600px`
+     and centred, so the column is min(viewport - 160, 1600): 1265 at 1440,
+     still 1600 at 2560. Measured at 1920, where the inner block reports
+     max-width 1600px and sits at x=152.5 — 80 of gutter plus 72.5 of the
+     centring remainder.
+
+     Reproduced here on the gutter rather than with a wrapper element, because
+     the gutter is already the one value every section, absolute inset and
+     negative bleed on this site is written against. Growing it past 80 once the
+     viewport clears 1760 (1600 + two gutters) caps the column at 1600 and
+     centres it, with no markup change and no second concept to keep in sync.
+     Below 1760 the value is untouched, so 1440/810/390 render exactly as
+     before. See the min-width rule under section 1. */
+  --valad-max: 1600px;
   /* Measured off valad.io: 24px of padding above and below a 46px inner row,
      for 94px total. The row is 46px because the CTA pill sets it — the 22px
      wordmark is centred inside it, not the thing that defines it. An earlier
@@ -64,14 +100,70 @@
      sat 24px short. Mobile drops to 92px (see responsive.css section 0). */
   --valad-header-h: 94px;
 
-  --valad-ink: #151515;
+  --valad-ink: #141414;
   --valad-paper: #EDECE8;
+
+  /* Vertical rhythm ---------------------------------------------------------
+     valad.io's section padding is a set of flat pixel values. It has no
+     viewport-height component anywhere: a section that opens on 200px of air
+     opens on 200px whether the window is 700px tall or 1400px. Read off the
+     live site at 1440x900, the full vocabulary it uses is
+
+       tops     80  120  150  160  180  200  220
+       bottoms  80   90  120  130  160  200
+
+     which is the scale below, with 150 folded into 160 and 130 into 120 — a
+     10px step is not a design decision at these sizes, it is drift.
+
+     This replaces a `clamp(min, Nvh, max)` model that had grown to 62 distinct
+     hand-authored values across the site. Two things were wrong with it. The
+     ad-hoc part is obvious. The vh part is subtler and mattered more: at the
+     900px-tall reference viewport those clamps sat on their middle term, so a
+     section authored as "up to 180px" actually rendered 108px, and the whole
+     site ran roughly half of valad.io's spacing while reading, in source, as
+     though it matched. Tying section rhythm to window height also means the
+     composition recomposes when a browser toolbar appears, which valad.io's
+     never does.
+
+     Tablet holds the desktop values — valad.io changes only its gutter at 810,
+     not its rhythm. Mobile compresses (see responsive.css section 0). */
+  --v-space-xs:   80px;
+  --v-space-sm:   90px;
+  --v-space-md:  120px;
+  --v-space-lg:  160px;
+  --v-space-xl:  180px;
+  --v-space-2xl: 200px;
+  --v-space-3xl: 220px;
 }
 
 html, body {
   font-family: var(--valad-font);
-  font-weight: 300;
+  /* Body weight, inherited by everything that does not set its own. Was 300,
+     which ran the whole site a step lighter than valad.io everywhere except
+     the display sizes. Display text is not affected: every heading and figure
+     on these pages sets `font-weight: 300` on itself, and those win over this. */
+  font-weight: 400;
   letter-spacing: 0;
+}
+
+/* Small UI text is nudged heavier, as valad.io's axis does, so it holds at
+   size: navigation and the header pill at 450, footer links back down to 350.
+   Kept to the two link families that valad.io measures distinctly rather than
+   applied by size, since 15px means three different things on this site. */
+.r-header nav a,
+.r-header .r-cta { font-weight: 450; }
+.r-foot-nav a,
+.r-foot-nav div { font-weight: 350; }
+
+/* Content cap ---------------------------------------------------------------
+   Past 1760 the gutter absorbs everything over 1600 so the column stops
+   growing and stays centred, which is what valad.io's `max-width: 1600px`
+   inner block does. `100vw` counts the classic scrollbar where one is painted,
+   which puts the column up to half a scrollbar off centre on those platforms;
+   it is padding, not width, so it can never overflow, and on the overlay
+   scrollbars this site is read on the two agree exactly. */
+@media (min-width: 1761px) {
+  :root { --valad-gutter: calc((100vw - var(--valad-max)) / 2); }
 }
 
 /* Header CTA ----------------------------------------------------------------
@@ -96,10 +188,13 @@ html, body {
    this from their own scroll components, which write these same values inline;
    the other four pages get the class from header-scroll.js. Both routes land on
    the same appearance so the bar behaves identically across the site. */
+/* Solid white, not the paper tint it used to carry at 92% over a 12px blur —
+   that read as a translucent grey panel sitting on the page rather than as a
+   bar. Opaque means the blur has nothing to sample and only costs a compositing
+   layer and a containing block, so it goes with it; the hairline stays, since
+   an opaque white bar over white content needs the edge to read. */
 .r-header--solid.r-header--light {
-  background: rgba(237, 236, 232, .92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #FFFFFF;
   box-shadow: 0 1px 0 rgba(20, 20, 20, .12);
 }
 .r-header--solid.r-header--dark {
@@ -136,11 +231,11 @@ html, body {
    hit area only and, in a centred flex row, moves nothing. */
 @media (min-width: 810px) {
   .r-header .r-nav > a { line-height: 15px; }
-  .r-header--hero-dark:not(.r-header--solid) .r-nav > a { color: #F7F5F0 !important; }
+  .r-header--hero-dark:not(.r-header--solid) .r-nav > a { color: #FFFFFF !important; }
   .r-header--hero-invert-cta:not(.r-header--solid) a.r-cta,
   .r-header--hero-invert-cta:not(.r-header--solid) .r-cta > a {
-    background: #F7F5F0 !important;
-    color: #151515 !important;
+    background: #FFFFFF !important;
+    color: #141414 !important;
   }
 }
 
@@ -175,6 +270,38 @@ select {
   min-width: 0;
   max-width: 100%;
 }
+
+/* Footer link leading ------------------------------------------------------
+   valad.io sets its footer links to 15px/22.5px, which makes each link row
+   exactly 23px tall. VAM's links carry no line-height and inherit `normal`
+   (~18px), so the columns stacked tighter than valad.io's at the same 32px gap
+   and the whole block read shorter than it should. Size and colour are already
+   matched inline; this is only the leading.
+
+   The uppercase column headers are deliberately left alone — they are VAM's
+   own eyebrow treatment, and CLAUDE.md allows positive tracking on exactly
+   that kind of small uppercase label. valad.io runs its headers at the same
+   15px as the links instead, which is a content decision, not a metric. */
+.r-foot-nav a { line-height: 22.5px; }
+
+/* Footer column rules -------------------------------------------------------
+   Each footer column opens on a 1px rule. An earlier spec recorded valad.io's
+   columns as having "no top border — border-top: 0px none, the separation is
+   done with 24px of padding alone", and this site duly had its rules removed.
+   That reading was taken off the column elements themselves; valad.io draws the
+   rules on an `::after` pseudo-element instead, absolutely positioned to inset
+   0 with a 1px top border, so the column's own computed border really is 0
+   while a rule is plainly painted. Read off the pseudo-elements:
+
+     link row    1px solid #FFFFFF                (full white)
+     legal row   1px solid rgba(255,255,255,.12)  (a hairline)
+
+   The two rows are deliberately different weights — the links carry a bright
+   rule, the copyright and addresses beneath sit under a faint one. The 24px of
+   padding the old note described is real and already inline on every column;
+   it is the gap between the rule and the text, not a replacement for it. */
+.r-foot-nav > div { border-top: 1px solid #FFFFFF; }
+.r-foot-addr > div { border-top: 1px solid rgba(255, 255, 255, .12); }
 
 /* Closing marquee -----------------------------------------------------------
    Every page ends on the same block: the closing line and its links, then a
@@ -226,39 +353,82 @@ select {
    vertical padding around a centred 232px stack -- 134px of headline, a 50px
    gap, a 48px button row -- with the headline at 32px/44.8px in #141414.
 
-   valad.io fills that plate with four project renders, each held in a small box
-   and blown up with `transform: scale(3)`. Their boxes overlap the centred copy
-   on every reading, so the arrangement cannot be reproduced from geometry alone
-   and it is one narrow viewport from covering its own headline. This uses the
-   single-image form instead: one render at the size of the band with the copy
-   over it, which is the same plate, the same type and the same rhythm. The
-   scrim is #EDECE8 at 82% so the band still reads as valad.io's paper colour
-   with the render behind it, and the dark copy keeps its contrast. */
+   An earlier note here recorded the four renders as permanently `scale(3)` and
+   overlapping the copy, and concluded the arrangement could not be reproduced.
+   That reading was taken mid-animation. Measured again at successive scroll
+   positions the same four boxes report scale 3.0, then 1.85, then 1.0: the
+   scale is driven by scroll, and at rest they settle into the margins around
+   the centred copy without touching it. Their resting geometry, relative to
+   the 1425x632 plate, is
+
+     A  445x354  left 1053  top -105   (bleeds off the top and right)
+     B  315x428  left   74  top  325   (bleeds off the bottom)
+     C  168x208  left  976  top  353
+     D  117x114  left  371  top   59
+
+   so they are anchored here by whichever edge they sit nearest -- A and C from
+   the right, B and D from the left -- and the plate clips the overflow. There
+   is no scrim and no full-bleed image: the ground is flat paper, and the
+   renders are four discrete objects on it.
+
+   The drift that earlier passes left out has since been read exactly. Every
+   figure is driven by one shared value -- call it v, which runs 2 at the
+   approach down to 0 at rest -- and each writes it into the same two channels:
+
+     scale        1 + v                    (so 3 on approach, 1 at rest)
+     translate    a per-figure px offset x v
+
+   sampled off the live site as
+
+     A  translateY(-100v)
+     B  translateX(-30v)  translateY(-15v)
+     C  translateX( 20v)  translateY( 30v)
+     D  translateY(35.5v)
+
+   at v = 2 that reads translateY(-200px) scale(3), translateX(-60px)
+   translateY(-30px) scale(3), and so on, which is what the four elements carry
+   on a page that has not reached the band yet. So the boxes do not merely zoom
+   out of the plate, they converge on it: A falls from above, C rises from
+   below and to the left, B drifts in from the right, D from above. The
+   multipliers are the whole of the second channel and they are small next to
+   the zoom, which is why a two-sample reading missed them.
+
+   valad.io writes B's offsets on top of a `translate(-50%, -50%)` because it
+   anchors that figure by its centre. Ours is anchored top-left like the other
+   three, so only the drift carries over; the -50% is its layout, not its
+   animation.
+
+   header-scroll.js writes v as `--cta-v` on the band. The figures compose both
+   channels from it, so a band that never gets the property -- script blocked,
+   JS off, reduced motion -- resolves to translate(0,0) scale(1) and renders at
+   rest, which is the state the composition was measured in. */
 .r-cta-band {
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
   height: 632px;
   padding: 200px var(--valad-gutter);
-  background: #EDECE8;
+  /* valad.io's plate is #EDECE8. White is a deliberate departure — asked for
+     directly, so the renders sit on paper rather than on the page's own grey. */
+  background: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.r-cta-band-img {
+.r-cta-band-fig {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
+  object-fit: cover;
+  transform:
+    translate(calc(var(--fig-dx, 0px) * var(--cta-v, 0)),
+              calc(var(--fig-dy, 0px) * var(--cta-v, 0)))
+    scale(calc(1 + var(--cta-v, 0)));
+  will-change: transform;
 }
-.r-cta-band::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(237, 236, 232, .82);
-}
+.r-cta-band-fig--a { width: 445px; height: 354px; right: -73px;  top: -105px; --fig-dx:   0px; --fig-dy: -100px; }
+.r-cta-band-fig--b { width: 315px; height: 428px; left:   74px; top:  325px; --fig-dx: -30px; --fig-dy:  -15px; }
+.r-cta-band-fig--c { width: 168px; height: 208px; right: 281px; top:  353px; --fig-dx:  20px; --fig-dy:   30px; }
+.r-cta-band-fig--d { width: 117px; height: 114px; left:  371px; top:   59px; --fig-dx:   0px; --fig-dy: 35.5px; }
 /* 232px of content in a 632px band: 134 of headline, a 50px gap, a 48px row. */
 .r-cta-band-inner {
   position: relative;
@@ -299,4 +469,4 @@ select {
   color: #141414;
   transition: background-color 260ms ease, color 260ms ease;
 }
-.r-cta-band-btn:hover { background: #151515; color: #EDECE8; }
+.r-cta-band-btn:hover { background: #141414; color: #EDECE8; }
