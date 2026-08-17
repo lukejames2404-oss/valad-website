@@ -204,7 +204,6 @@
     </a>
 
   </div>
-  <div id="pagination" style="display:none;align-items:center;justify-content:center;gap:14px;padding:clamp(50px,7vh,80px) var(--valad-gutter)"></div>
   <div id="emptyState" style="display:none;padding:clamp(70px,12vh,140px) var(--valad-gutter);text-align:center;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:20px;letter-spacing:0px;color:rgba(20,20,20,.45)">No investments match this combination.</div>
 </section>
 
@@ -288,11 +287,9 @@ class Component extends DCLogic {
     this.setupCardReveals("#assetGrid > a");
     this.setupReveals();
     this.scrubHeadings();
-    this.perPage = 8;
-    this.currentPage = 1;
     this.selects = Array.from(document.querySelectorAll("select[data-filter]"));
     this.cards = Array.from(document.querySelectorAll("[data-asset]"));
-    this.onChange = () => { this.currentPage = 1; this.apply(); };
+    this.onChange = () => this.apply();
     this.selects.forEach((s) => s.addEventListener("change", this.onChange));
     this.apply();
 
@@ -355,12 +352,11 @@ class Component extends DCLogic {
     const keys = Object.keys(active);
     const matching = this.cards.filter((c) => keys.every((k) => c.getAttribute("data-" + k) === active[k]));
     const n = matching.length;
-    const totalPages = Math.max(1, Math.ceil(n / this.perPage));
-    if (this.currentPage > totalPages) this.currentPage = totalPages;
-    const start = (this.currentPage - 1) * this.perPage;
-    const end = start + this.perPage;
+    /* Every match is shown. The grid used to page at eight and draw a numbered
+       pager beneath it; the portfolio is small enough to read in one pass, and
+       paging hid most of it behind a control people had to find first. */
     this.cards.forEach((c) => { c.style.display = "none"; });
-    matching.slice(start, end).forEach((c) => { c.style.display = "flex"; });
+    matching.forEach((c) => { c.style.display = "flex"; });
 
     const count = document.getElementById("resultCount");
     if (count) count.textContent = n === 1 ? "1 investment" : n + " investments";
@@ -368,43 +364,11 @@ class Component extends DCLogic {
     if (empty) empty.style.display = n ? "none" : "block";
     const clear = document.getElementById("clearFilters");
     if (clear) clear.style.display = keys.length ? "block" : "none";
-    this.renderPagination(totalPages);
-  }
-  renderPagination(totalPages) {
-    const wrap = document.getElementById("pagination");
-    if (!wrap) return;
-    wrap.innerHTML = "";
-    if (totalPages <= 1) { wrap.style.display = "none"; return; }
-    wrap.style.display = "flex";
-    const font = "'Saans','Saans Fallback',Helvetica,Arial,sans-serif";
-    const mkBox = (label, disabled, onClick) => {
-      const b = document.createElement("button");
-      b.textContent = label;
-      b.disabled = !!disabled;
-      b.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(20,20,20," + (disabled ? ".12" : ".3") + ");cursor:" + (disabled ? "default" : "pointer") + ";font-size:16px;line-height:1;color:" + (disabled ? "rgba(20,20,20,.25)" : "#141414") + ";padding:0;font-family:" + font;
-      if (!disabled) {
-        b.addEventListener("mouseenter", () => { b.style.background = "rgba(20,20,20,.05)"; });
-        b.addEventListener("mouseleave", () => { b.style.background = "transparent"; });
-        b.addEventListener("click", onClick);
-      }
-      return b;
-    };
-    wrap.appendChild(mkBox("←", this.currentPage === 1, () => { this.currentPage--; this.apply(); }));
-    for (let p = 1; p <= totalPages; p++) {
-      const n = document.createElement("button");
-      n.textContent = String(p);
-      const active = p === this.currentPage;
-      n.style.cssText = "background:transparent;border:none;padding:8px 4px;cursor:pointer;font-size:16px;letter-spacing:0px;font-family:" + font + ";color:" + (active ? "#141414" : "rgba(20,20,20,.35)") + ";font-weight:300";
-      n.addEventListener("click", () => { this.currentPage = p; this.apply(); });
-      wrap.appendChild(n);
-    }
-    wrap.appendChild(mkBox("→", this.currentPage === totalPages, () => { this.currentPage++; this.apply(); }));
   }
   renderVals() {
     return {
       clear: () => {
         (this.selects || []).forEach((s) => { s.value = ""; });
-        this.currentPage = 1;
         this.apply();
       }
     };
