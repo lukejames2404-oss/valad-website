@@ -689,7 +689,13 @@
      indistinguishable from the section. Changing this means changing the layer
      count in the stylesheet with it. */
   var COUNT = 6;
-  var STAGGER = 0.22;   /* how far one bar lags the one below it, in progress */
+  /* How far one bar lags the one below it, in progress. Was 0.22, which put
+     the six bars at six clearly different lengths at any moment — the edge
+     read as a staircase of unequal steps rather than as a single edge being
+     drawn. Small enough now that the bars arrive as one line with a slight
+     rake to it, which is the difference between a comb closing and a set of
+     bars of assorted sizes. */
+  var STAGGER = 0.18;
 
   /* The run is the seam's whole passage through the window: p is 0 as the seam
      crosses the bottom edge and does not reach 1 until it leaves at the top. A

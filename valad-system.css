@@ -136,10 +136,10 @@
   --v-space-3xl: 220px;
 
   /* One bar of the dark-to-light section wipe. Six of them stack, so the strip
-     is 42px and sits well inside the 160px of top padding every light section
+     is 72px and sits well inside the 160px of top padding every light section
      opens with. Mobile takes it down in responsive.css, where that padding
      compresses to 100px. */
-  --wipe-band: 7px;
+  --wipe-band: 12px;
 }
 
 html, body {
@@ -855,30 +855,26 @@ select {
     linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent)),
     linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent));
   background-repeat: no-repeat;
-  /* Width animates; height does not. The original drove both channels off the
-     same fraction — each bar a growing box, `p` of its width and `p` of its
-     band — on the reasoning that a bar should read as being drawn rather than
-     stretched. That is what put the lines in it, and no amount of bleed fixed
-     them: a height of `p × 14px` is fractional for every value of p except 1,
-     a fractional background-size is resolved against the device pixel grid
-     rather than composited, and the rounding leaves a hairline of the dark
-     base colour between one band and the next. Six bands, five seams, redrawn
-     on every scroll frame — the "borders on every strip".
+  /* Both channels animate. Each bar starts as a 2px line and grows toward its
+     band, so while the comb is in flight there is a sliver of the dark ground
+     visible between one line and the next — that gap is the effect, not a
+     defect, and it is what makes six lines read as six lines rather than as
+     one block being stretched.
 
-     Holding each layer at a constant whole-pixel band height removes the
-     variable those seams were computed from. The bands now tile exactly at
-     any progress, the 1px bleed guarantees the overlap even where --wipe-band
-     is later set to something odd, and the comb still reads as a comb because
-     the stagger between bars is carried entirely by width — which is free to
-     be fractional, since a subpixel *vertical* edge has no neighbour to leave
-     a gap against. */
+     The gap has to be gone once a bar arrives, or the strip keeps a ladder of
+     hairlines across it long after the animation has finished, which is what
+     was wrong the first time. Two things guarantee it: the eased progress
+     resolves to exactly 1 at the end of the run, and the +2px carries each bar
+     past its own band into the one below. Since every layer is the same flat
+     colour, overshooting paints over the bar beneath in the colour already
+     there — the closing shows, the overlap does not. */
   background-size:
-    calc(var(--wipe-p0, 1) * 100%) calc(var(--wipe-band) + 1px),
-    calc(var(--wipe-p1, 1) * 100%) calc(var(--wipe-band) + 1px),
-    calc(var(--wipe-p2, 1) * 100%) calc(var(--wipe-band) + 1px),
-    calc(var(--wipe-p3, 1) * 100%) calc(var(--wipe-band) + 1px),
-    calc(var(--wipe-p4, 1) * 100%) calc(var(--wipe-band) + 1px),
-    calc(var(--wipe-p5, 1) * 100%) calc(var(--wipe-band) + 1px);
+    calc(var(--wipe-p0, 1) * 100%) calc(var(--wipe-p0, 1) * var(--wipe-band) + 2px),
+    calc(var(--wipe-p1, 1) * 100%) calc(var(--wipe-p1, 1) * var(--wipe-band) + 2px),
+    calc(var(--wipe-p2, 1) * 100%) calc(var(--wipe-p2, 1) * var(--wipe-band) + 2px),
+    calc(var(--wipe-p3, 1) * 100%) calc(var(--wipe-p3, 1) * var(--wipe-band) + 2px),
+    calc(var(--wipe-p4, 1) * 100%) calc(var(--wipe-p4, 1) * var(--wipe-band) + 2px),
+    calc(var(--wipe-p5, 1) * 100%) calc(var(--wipe-p5, 1) * var(--wipe-band) + 2px);
   background-position:
     0 0,
     0 var(--wipe-band),
