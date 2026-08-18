@@ -1112,11 +1112,17 @@
     if (row) select(row);
   }
 
-  document.addEventListener("pointerover", function (e) {
-    /* Hover only where hovering is real — on a touchscreen `pointerover`
-       fires on tap and would double up with the click handler below. */
-    if (e.pointerType === "mouse") fromEvent(e);
-  });
+  /* Click, not hover. Hover selection made the list twitchy to read — the
+     image and the open description changed under the pointer on the way to
+     anywhere else on the page, including while simply scrolling past. A term
+     opens when it is chosen and stays open. Keyboard focus still selects, so
+     the list is operable without a pointer. */
   document.addEventListener("click", fromEvent);
-  document.addEventListener("focusin", fromEvent);
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var row = e.target.closest && e.target.closest("[data-asset-row]");
+    if (!row) return;
+    e.preventDefault();
+    select(row);
+  });
 })();
