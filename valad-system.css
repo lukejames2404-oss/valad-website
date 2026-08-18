@@ -891,22 +891,24 @@ select {
     0 calc(var(--wipe-band) * 5);
 }
 
-/* Light-on-dark text weight -------------------------------------------------
-   Saans ships here as a single static Light master (`font-weight: 100 900` on
-   one file), so `font-weight` and `font-variation-settings` change nothing —
-   verified: the same string measures identically at 200, 300 and 700. The
-   only real lever on apparent weight is how it is rasterised.
+/* Type weight ---------------------------------------------------------------
+   Saans ships here as a single static master (`font-weight: 100 900` on one
+   file), so `font-weight` and `font-variation-settings` change nothing —
+   measured on the page, one string renders at an identical width at weight
+   100, 200, 300, 400 and 700. The axis note at the top of this file is stale;
+   there is no lighter cut in the build to reach for.
 
-   Default subpixel antialiasing adds weight to glyph edges, which is barely
-   visible as dark ink on paper and very visible as light ink on near-black —
-   the same Light master reads a step heavier the moment a section inverts.
-   Greyscale antialiasing removes that gain, which is what actually thins the
-   type rather than shrinking or greying it.
+   So the only lever on apparent weight is rasterisation. Default subpixel
+   antialiasing adds weight to glyph edges; greyscale antialiasing does not,
+   which is what actually thins the type rather than shrinking or greying it.
 
-   Scoped to the sections that invert rather than set globally: on the light
-   pages subpixel rendering is the sharper of the two and there is no bloom to
-   correct. */
-[data-asset-picker] {
+   Set globally. The effect is most pronounced on light ink over near-black,
+   where the added weight blooms, and an earlier pass scoped it to dark blocks
+   only for that reason — but the site then rendered its display type at two
+   different apparent weights depending on which way a section was inverted,
+   which is worse than either weight on its own. One rasterisation everywhere
+   is the consistent result, and it is the lighter of the two. */
+html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
