@@ -890,3 +890,23 @@ select {
     0 calc(var(--wipe-band) * 4),
     0 calc(var(--wipe-band) * 5);
 }
+
+/* Light-on-dark text weight -------------------------------------------------
+   Saans ships here as a single static Light master (`font-weight: 100 900` on
+   one file), so `font-weight` and `font-variation-settings` change nothing —
+   verified: the same string measures identically at 200, 300 and 700. The
+   only real lever on apparent weight is how it is rasterised.
+
+   Default subpixel antialiasing adds weight to glyph edges, which is barely
+   visible as dark ink on paper and very visible as light ink on near-black —
+   the same Light master reads a step heavier the moment a section inverts.
+   Greyscale antialiasing removes that gain, which is what actually thins the
+   type rather than shrinking or greying it.
+
+   Scoped to the sections that invert rather than set globally: on the light
+   pages subpixel rendering is the sharper of the two and there is no bloom to
+   correct. */
+[data-asset-picker] {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
