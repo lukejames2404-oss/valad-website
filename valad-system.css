@@ -699,8 +699,15 @@ select {
    caret belonging to the panel that is actually open turns — with both menus
    sharing the one open flag, the plain `[data-mega="open"]` form flipped both
    chevrons whichever of them you clicked. */
-.r-header .r-nav a[href="about.html"]::after,
-.r-header .r-nav a[href="portfolio.html"]::after {
+/* Direct children only. Written as a descendant selector originally, which was
+   harmless while the only `about.html` and `portfolio.html` links inside
+   `.r-nav` were the two bar items themselves. The mobile sub-panels changed
+   that: their rows live inside `.r-nav` too, and "Overview" points at
+   about.html while "Our Assets" points at portfolio.html — so both picked up a
+   caret announcing a dropdown they do not have. `>` scopes this back to the
+   bar's own items, which is all it ever meant. */
+.r-header .r-nav > a[href="about.html"]::after,
+.r-header .r-nav > a[href="portfolio.html"]::after {
   content: "";
   display: inline-block;
   width: 7px;
@@ -713,8 +720,8 @@ select {
   transition: transform 260ms cubic-bezier(.22,.61,.36,1);
   vertical-align: middle;
 }
-[data-mega-id="aboutMega"] .r-header .r-nav a[href="about.html"]::after,
-[data-mega-id="portfolioMenu"] .r-header .r-nav a[href="portfolio.html"]::after {
+[data-mega-id="aboutMega"] .r-header .r-nav > a[href="about.html"]::after,
+[data-mega-id="portfolioMenu"] .r-header .r-nav > a[href="portfolio.html"]::after {
   transform: rotate(-135deg);
 }
 
