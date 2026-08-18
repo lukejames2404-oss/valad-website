@@ -607,8 +607,21 @@
      on every page, so the rules that sized and stacked them have gone with
      them — as has the tagline-to-grid clearance at both tiers, since the
      columns now open the footer directly under its own 80px of padding. */
-  .r-foot-nav { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 40px 24px !important; }
+  /* Company and Explore sit side by side; "What we do" takes the full width
+     under them. Three link groups cannot divide evenly across two tracks, so
+     something has to give — and it is better that the odd one out is the group
+     whose labels actually need the width. "Development Management" does not
+     fit a 156px column at 15px and breaks over two lines, which reads as four
+     entries rather than two; full width sets both on one line.
+
+     Link spacing comes in from 32px to 20px. At four links a group that is
+     the single biggest contributor to footer height, and 32px was tuned for a
+     two-track desktop layout where the columns run side by side rather than
+     stacking. */
+  .r-foot-nav { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 34px 24px !important; }
   .r-foot-nav > div:first-child { grid-column: 1 / -1; }
+  .r-foot-nav > div:last-child { grid-column: 1 / -1; }
+  .r-foot-nav > div { gap: 20px !important; }
   .r-foot-addr { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 40px 24px !important; }
   /* valad.io drops its column inset from 24px to 16px here. */
   .r-foot-nav > div, .r-foot-addr > div { padding-top: 16px !important; }
