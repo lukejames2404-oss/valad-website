@@ -636,10 +636,6 @@ select {
 .r-mega-item:hover .r-mega-desc { color: rgba(20, 20, 20, .8); }
 /* The featured rail sits in its own column and takes the full stack height. */
 .r-mega-feature { padding: 30px 0 0; }
-.r-mega-feature-label::before {
-  content: "// ";
-  color: rgba(20, 20, 20, .3);
-}
 .r-mega-feature-label {
   font-family: var(--valad-font);
   font-weight: 400;

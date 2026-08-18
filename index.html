@@ -33,7 +33,7 @@
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   @keyframes cueDrift{0%{transform:translateY(0);opacity:.1}45%{transform:translateY(9px);opacity:.8}100%{transform:translateY(18px);opacity:0}}
 </style>
-<link rel="stylesheet" href="valad-system.css?v=25">
+<link rel="stylesheet" href="valad-system.css?v=26">
 <link rel="stylesheet" href="responsive.css?v=53">
 <script defer src="./header-scroll.js"></script>
 </helmet>
@@ -564,26 +564,122 @@ class Component extends DCLogic {
     [60, 160, 400].forEach((t) => setTimeout(() => { this.cacheRefs(); this.layoutMark(); this.frame(); }, t));
     setTimeout(() => this.layoutMark(), 120);
     setTimeout(() => this.initRow(), 140);
-    setTimeout(() => this.initTeamRow(), 140);
+    [140, 420, 900].forEach((t) => setTimeout(() => this.initTeamRow(), t));
   }
+  /* The team rail loops, the way valad.io's partner slideshow does: run off
+     either end and the same faces come back round from the other side rather
+     than the rail stopping against a wall. Desktop and mobile both, since both
+     are the one overflow row — the arrows drive it on desktop, a swipe on a
+     phone, and neither should ever hit an edge.
+
+     It is done with clones rather than by animating a transform, because the
+     row is a native overflow scroller and has to stay one: that is what gives
+     the phone its momentum swipe for free. A full copy of the seven cards is
+     inserted before the originals and another after, so the strip repeats with
+     period `setW` and any view of it is indistinguishable from the view one
+     period along. Resting position is the middle copy. When the rail settles
+     more than half a period from there, scrollLeft is moved back by exactly one
+     period with smooth scrolling off — the pixels under the viewport are
+     identical either side of that move, so nothing visibly happens, and the
+     rail is re-centred with a fresh half-period of travel in both directions.
+
+     The re-centring waits for the scroll to stop (the timer is reset by every
+     scroll event, so it fires once the momentum has died) rather than running
+     on each frame. Writing scrollLeft mid-gesture cancels the browser's own
+     smooth scroll and fights a touch fling; at rest it is free. Arrow presses
+     re-centre first, before starting their animation, for the same reason. */
   initTeamRow() {
     const row = document.getElementById("teamRow");
     const prev = document.getElementById("teamPrev");
     const next = document.getElementById("teamNext");
-    if (!row || !prev || !next || this.teamRowBound) return;
-    this.teamRowBound = true;
-    /* One card per press, the way valad.io's partner slideshow advances. This
-       looked for `[data-reveal]`, which the team cards do not carry — they use
-       `data-was-delay` — so every press fell through to a hardcoded 260px.
-       That is narrower than a card at any viewport, so the rail came to rest
-       part-way through one instead of on its edge. Measure a card instead and
-       add the 10px gap the row is actually built with. */
-    const step = () => {
-      const card = row.querySelector(":scope > div");
-      return card ? card.getBoundingClientRect().width + 10 : row.clientWidth;
+    if (!row || !prev || !next) return;
+
+    const cards = () => Array.from(row.querySelectorAll(":scope > div"));
+    const reals = cards().filter((d) => !d.hasAttribute("data-team-clone"));
+    if (!reals.length) return;
+
+    /* Rebuilt whenever the clones are missing rather than once per page: the
+       runtime re-renders this subtree and drops anything added to it, and a
+       run that finds the copies still standing does nothing. */
+    if (!row.querySelector(":scope > [data-team-clone]")) {
+      const copy = (card) => {
+        const c = card.cloneNode(true);
+        c.setAttribute("data-team-clone", "");
+        c.removeAttribute("data-was-delay");
+        /* Same LinkedIn links, so a clone on screen behaves like the card it
+           copies — but out of the tab order, so the sequence is seven stops
+           rather than twenty-one. */
+        c.querySelectorAll("a").forEach((a) => a.setAttribute("tabindex", "-1"));
+        return c;
+      };
+      const before = document.createDocumentFragment();
+      const after = document.createDocumentFragment();
+      reals.forEach((card) => { before.appendChild(copy(card)); after.appendChild(copy(card)); });
+      row.insertBefore(before, reals[0]);
+      row.appendChild(after);
+    }
+
+    /* Measured off the layout rather than derived from card width and gap, so
+       it stays exact at every breakpoint — the card count per row changes at
+       1200 and 810 and the gap is authored in one place only. */
+    const setW = () => {
+      const all = cards();
+      const first = all[0];
+      return first && reals[0] ? reals[0].offsetLeft - first.offsetLeft : 0;
     };
-    prev.addEventListener("click", () => row.scrollBy({ left: -step(), behavior: "smooth" }));
-    next.addEventListener("click", () => row.scrollBy({ left: step(), behavior: "smooth" }));
+    const step = () => {
+      const card = reals[0];
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 10;
+      return card ? card.getBoundingClientRect().width + gap : row.clientWidth;
+    };
+    /* scroll-behavior:smooth is on the row itself, so a jump has to switch it
+       off around the write or the correction animates and is seen. */
+    const jump = (x) => {
+      row.style.scrollBehavior = "auto";
+      row.scrollLeft = x;
+      row.style.scrollBehavior = "";
+    };
+    const recentre = () => {
+      const w = setW();
+      if (!w) return;
+      const x = row.scrollLeft;
+      if (x < w * 0.5) jump(x + w);
+      else if (x > w * 1.5) jump(x - w);
+    };
+
+    if (!row.__teamLoop) {
+      row.__teamLoop = true;
+      jump(setW());
+      let idle;
+      row.addEventListener("scroll", () => {
+        clearTimeout(idle);
+        idle = setTimeout(recentre, 110);
+      }, { passive: true });
+      /* Width only: a phone hides and shows its URL bar constantly, and each
+         one of those is a resize event that must not throw the rail back to
+         the middle under the reader's thumb. */
+      let lastW = window.innerWidth;
+      window.addEventListener("resize", () => {
+        if (window.innerWidth === lastW) return;
+        lastW = window.innerWidth;
+        jump(setW());
+      });
+    }
+
+    const go = (dir) => {
+      const w = setW();
+      const s = step();
+      if (w) {
+        const target = row.scrollLeft + dir * s;
+        if (target > w * 1.5) jump(row.scrollLeft - w);
+        else if (target < w * 0.5) jump(row.scrollLeft + w);
+      }
+      row.scrollBy({ left: dir * s, behavior: "smooth" });
+    };
+    /* Marked on the buttons, not on the component, so a pair replaced by a
+       re-render is bound again while a surviving pair is not bound twice. */
+    if (!prev.__teamBound) { prev.__teamBound = true; prev.addEventListener("click", () => go(-1)); }
+    if (!next.__teamBound) { next.__teamBound = true; next.addEventListener("click", () => go(1)); }
   }
   cacheRefs() {
     this.$header = document.getElementById("siteHeader");

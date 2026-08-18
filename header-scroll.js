@@ -287,7 +287,11 @@
   ];
   var FEATURE = {
     label: "Featured",
-    img: "assets/slots/news-img-1.webp",
+    /* news-img-2 is the summit story's own slot -- the news index, the story
+       page and the homepage rail all read it for that headline. This pointed at
+       news-img-1, which is the Glasgow co-living story, so the panel ran the
+       wrong photo under the right headline. */
+    img: "assets/slots/news-img-2.webp",
     head: "Valad at the Real-World Asset Summit, New York",
     href: "valad-real-world-asset-summit-new-york.html"
   };
