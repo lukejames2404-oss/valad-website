@@ -1193,7 +1193,29 @@
 @media (max-width: 809.98px) {
   .r-assets-row { flex-direction: column !important; gap: 10px !important; padding: 18px 0 !important; }
   .r-assets-row > div { flex: none !important; width: 100% !important; }
-  .r-assets-card { padding: 24px !important; }
+  /* Full bleed. Measured on the reference at 375: the section carries no
+     horizontal padding at all and its content sits at x=20 with a 335 measure
+     — one 20px inset, not the gutter plus a card pad on top of it, which is
+     what made this read boxed-in and narrow next to the rest of the page.
+     The card keeps its fill and loses its margin, so the panel runs edge to
+     edge and only the type is inset. */
+  /* Section padding goes entirely, not just the sides. Keeping the vertical
+     padding left a band of the section's own ground below the card, and since
+     the card is a shade off that ground it read as a stripe under the image
+     rather than as space — the image looked like it ran into the section
+     below. The card now fills the section edge to edge and top to bottom, so
+     the panel is one tone, and its own padding is what spaces the contents.
+     That is how the reference reads at this width: a single full-bleed panel,
+     not a card sitting on a visible ground. */
+  [data-asset-picker] { padding: 0 !important; }
+  .r-assets-card { max-width: none !important; padding: 48px 20px !important; }
+  /* Display steps down here, as it does across the site; the terms and their
+     descriptions hold their desktop sizes on the reference. */
+  .r-assets-card h2 { font-size: 32px !important; }
+  /* The site's global mobile map steps 20px down to 18px, which is right for
+     body copy and wrong here — these are the index's labels and the reference
+     holds them at 20px on a 375 screen. Descriptions stay at 15px either way. */
+  .r-assets-term { font-size: 20px !important; }
 }
 
 
