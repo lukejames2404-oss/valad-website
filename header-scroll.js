@@ -357,9 +357,18 @@
       html: megaHTML(PORTFOLIO_GROUPS, PORTFOLIO_FEATURE) }
   ];
 
-  /* Only menus whose trigger is actually in this page's bar get built. */
+  /* Only menus whose trigger is actually in this page's bar get built.
+
+     Direct children only — the same correction the caret rule in
+     valad-system.css needed, and for the same reason. As a descendant
+     selector this matched anything inside `.r-nav` pointing at those hrefs,
+     which since the mobile sub-panels landed includes two of their own rows:
+     "Overview" links to about.html and "Our Assets" to portfolio.html. The
+     click handler read either one as the bar's trigger, called
+     `preventDefault()` and tried to drill into a panel that is not a sibling
+     of it — so the row did nothing at all and the page never opened. */
   MENUS = MENUS.filter(function (m) {
-    m.sel = '.r-header .r-nav a[href="' + m.href + '"]';
+    m.sel = '.r-header .r-nav > a[href="' + m.href + '"]';
     return !!document.querySelector(m.sel);
   });
   if (!MENUS.length) return;
