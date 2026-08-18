@@ -1074,3 +1074,49 @@
      until the first scroll. */
   [0, 300, 900, 2000].forEach(function (t) { setTimeout(paint, t); });
 })();
+
+/* ============================================================================
+   "Our Assets" picker
+   ----------------------------------------------------------------------------
+   A list of terms beside a stack of images: the active row shows its
+   description and its image, the rest collapse to a muted title. Pointer
+   moves select on hover, which is how the reference behaves; keyboard and
+   touch select on focus and on tap, so the row is reachable without one.
+
+   Delegated from `document` and resolved by `data-` attribute at event time,
+   for the reason every other module in this file now is: the runtime re-keys
+   the tree after mount, and anything bound to the nodes present at load is
+   bound to nodes that will not be on screen. Bound once — a second set of
+   listeners would toggle the same row twice per event. */
+(function () {
+  if (document.documentElement.hasAttribute("data-assets-bound")) return;
+  document.documentElement.setAttribute("data-assets-bound", "");
+
+  function select(row) {
+    var section = row.closest("[data-asset-picker]");
+    if (!section) return;
+    var n = row.getAttribute("data-asset-row");
+    if (row.hasAttribute("data-active")) return;
+    section.querySelectorAll("[data-asset-row]").forEach(function (r) {
+      r.toggleAttribute("data-active", r === row);
+    });
+    section.querySelectorAll("[data-asset-fig]").forEach(function (f) {
+      var on = f.getAttribute("data-asset-fig") === n;
+      f.style.opacity = on ? "1" : "0";
+      f.style.filter = on ? "blur(0px)" : "blur(20px)";
+    });
+  }
+
+  function fromEvent(e) {
+    var row = e.target.closest && e.target.closest("[data-asset-row]");
+    if (row) select(row);
+  }
+
+  document.addEventListener("pointerover", function (e) {
+    /* Hover only where hovering is real — on a touchscreen `pointerover`
+       fires on tap and would double up with the click handler below. */
+    if (e.pointerType === "mouse") fromEvent(e);
+  });
+  document.addEventListener("click", fromEvent);
+  document.addEventListener("focusin", fromEvent);
+})();

@@ -1162,6 +1162,35 @@
 }
 
 
+/* valad.io "Our Assets" picker ------------------------------------------------
+   Four tracks, list and figure each spanning two. Only the active row shows
+   its description — the rest collapse to their title, which is what makes the
+   list read as an index rather than six paragraphs. Collapsing is done with
+   grid-template-rows rather than height so the description can size itself;
+   `overflow:hidden` on the wrapper is what actually hides it at 0fr.        */
+.r-assets-def { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 500ms cubic-bezier(.22,.61,.36,1); }
+.r-assets-def > p { min-height: 0; }
+.r-assets-row[data-active] .r-assets-def { grid-template-rows: 1fr; }
+.r-assets-term { transition: opacity 400ms ease; opacity: .45; }
+.r-assets-row[data-active] .r-assets-term { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .r-assets-row:hover .r-assets-term { opacity: 1; }
+}
+.r-assets-row:focus-visible { outline: 2px solid #141414; outline-offset: 2px; }
+
+@media (max-width: 1199.98px) {
+  .r-assets-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .r-assets-col, .r-assets-fig { grid-column: 1 / -1 !important; }
+  /* Figure first at narrow widths: the list is the tall element here and
+     pushing the image under it buries it below the fold. */
+  .r-assets-fig { order: -1; aspect-ratio: 4/3 !important; }
+}
+@media (max-width: 809.98px) {
+  .r-assets-row { flex-direction: column !important; gap: 10px !important; padding: 18px 0 !important; }
+  .r-assets-row > div { flex: none !important; width: 100% !important; }
+}
+
+
 /* ==========================================================================
    7. Contact
    ========================================================================== */
