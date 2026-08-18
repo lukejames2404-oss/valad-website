@@ -282,8 +282,7 @@
     ]},
     { label: "What we do", items: [
       { t: "Development Management", d: "Origination, planning and delivery", href: "development-management.html", i: I.development },
-      { t: "Investment Management", d: "Value-add, opportunistic and core-plus", href: "investment-management.html", i: I.investment },
-      { t: "Asset Management", d: "Active ownership through the cycle", href: "asset-management.html", i: I.asset }
+      { t: "Investment Management", d: "Value-add, opportunistic and core-plus", href: "investment-management.html", i: I.investment }
     ]}
   ];
   var FEATURE = {
@@ -542,7 +541,7 @@
      fair trade while the dropdown's extra rows were duplicates of what those
      pages already linked to internally. It stops being one once a row points
      somewhere nothing else on the page reaches — Leadership, Development
-     Management, Investment Management, Asset Management and Our Partners are
+     Management, Investment Management and Our Partners are
      all real destinations now, not anchors, so a mobile visitor needs a way
      into them that isn't scrolling to the footer.
 

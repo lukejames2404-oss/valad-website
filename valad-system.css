@@ -136,10 +136,10 @@
   --v-space-3xl: 220px;
 
   /* One bar of the dark-to-light section wipe. Six of them stack, so the strip
-     is 84px and sits well inside the 160px of top padding every light section
+     is 42px and sits well inside the 160px of top padding every light section
      opens with. Mobile takes it down in responsive.css, where that padding
      compresses to 100px. */
-  --wipe-band: 14px;
+  --wipe-band: 7px;
 }
 
 html, body {
@@ -842,21 +842,18 @@ select {
   z-index: -1;
   pointer-events: none;
   background-color: var(--wipe-from, transparent);
-  /* Each bar's leading edge fades rather than cutting straight to the dark
-     base colour — a hard stop is what makes a growing bar read as a
-     rectangle with a border on it; a soft one reads as light arriving. The
-     fade is a percentage of the bar's own width, so it stays proportional
-     instead of swelling to swallow a short bar the way a fixed pixel width
-     did, and it is scaled by (1 − p) so it narrows to nothing as the bar
-     closes: at rest there is no feather left to leave a dim sliver down the
-     right-hand side of a settled boundary. */
+  /* Flat fills, hard edges. An earlier pass feathered each bar's leading
+     edge to soften how it arrived; that reads as a blurred bar rather than
+     a drawn one, which is not the effect. The seams these were meant to
+     help with were never an edge problem anyway — they came from the
+     fractional band heights fixed below. */
   background-image:
-    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p0, 1)) * 9%), transparent 100%),
-    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p1, 1)) * 9%), transparent 100%),
-    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p2, 1)) * 9%), transparent 100%),
-    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p3, 1)) * 9%), transparent 100%),
-    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p4, 1)) * 9%), transparent 100%),
-    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p5, 1)) * 9%), transparent 100%);
+    linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent)),
+    linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent)),
+    linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent)),
+    linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent)),
+    linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent)),
+    linear-gradient(var(--wipe-to, transparent), var(--wipe-to, transparent));
   background-repeat: no-repeat;
   /* Width animates; height does not. The original drove both channels off the
      same fraction — each bar a growing box, `p` of its width and `p` of its
