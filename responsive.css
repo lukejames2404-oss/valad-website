@@ -1208,7 +1208,12 @@
      That is how the reference reads at this width: a single full-bleed panel,
      not a card sitting on a visible ground. */
   [data-asset-picker] { padding: 0 !important; }
-  .r-assets-card { max-width: none !important; padding: 48px 20px !important; }
+  /* No bottom padding: the reference measures `50px 0 0` on this section at
+     375, so the figure — last in the column — runs flush to the section's
+     bottom edge and hands straight over to whatever follows. The 20px sides
+     still apply to it; it is the vertical edge that bleeds, not the horizontal
+     one. */
+  .r-assets-card { max-width: none !important; padding: 48px 20px 0 !important; }
   /* Display steps down here, as it does across the site; the terms and their
      descriptions hold their desktop sizes on the reference. */
   .r-assets-card h2 { font-size: 32px !important; }
