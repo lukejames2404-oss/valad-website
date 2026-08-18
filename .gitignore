@@ -27,3 +27,7 @@ pexels-postiglioni*.jpg
 # Editor sidecar. The served copy is image-slots.state.json (no dot) —
 # static hosts do not serve dotfiles.
 .image-slots.state.json
+
+# Source photography — originals kept locally; the optimised copies the
+# site actually serves live in assets/capability/.
+images to use/
