@@ -64,6 +64,11 @@
     --v-space-xl:  100px;
     --v-space-2xl: 120px;
     --v-space-3xl: 120px;
+
+    /* The wipe comes down with the rhythm it sits in. Six 9px bands is a 54px
+       strip against 100px of top padding, holding the same proportion of the
+       section's opening the 84px strip holds at 1440. */
+    --wipe-band: 9px;
   }
 }
 
@@ -200,6 +205,14 @@
     --r-nav-bg: #FFFFFF;
     --r-nav-fg: #141414;
     --r-bar-fg: #141414;
+    /* Sub-nav rows reuse the desktop mega panel's markup (icon, title,
+       description), which is authored in fixed dark-on-white ink since it
+       only ever ran inside its own white dropdown. Inside the overlay it can
+       run on either --r-nav-bg, so the row furniture reads off these instead. */
+    --r-nav-dim: rgba(20, 20, 20, .45);
+    --r-nav-desc: rgba(20, 20, 20, .55);
+    --r-nav-border: rgba(20, 20, 20, .16);
+    --r-nav-rule: rgba(20, 20, 20, .13);
   }
   .r-header--dark {
     backdrop-filter: none !important;
@@ -207,6 +220,10 @@
     --r-nav-bg: #141414;
     --r-nav-fg: #FFFFFF;
     --r-bar-fg: #FFFFFF;
+    --r-nav-dim: rgba(243, 242, 238, .45);
+    --r-nav-desc: rgba(243, 242, 238, .55);
+    --r-nav-border: rgba(243, 242, 238, .22);
+    --r-nav-rule: rgba(243, 242, 238, .16);
   }
   .r-header--hero-dark:not(.r-header--solid) { --r-bar-fg: #FFFFFF; }
 
@@ -225,6 +242,7 @@
      About's inversion has to come back off. The logo is before the toggle in
      the markup and no sibling combinator reaches backwards, hence `:has()`. */
   .r-header--light:has(.r-navtoggle:checked) .r-logo img { filter: none !important; }
+  html[data-nav-open] .r-header--light .r-logo img { filter: none !important; }
 
   .r-navbtn { order: 3; margin-right: 0; margin-left: auto; }
 
@@ -249,7 +267,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   /* Open, the mark is an X drawn on the panel rather than on the hero. */
-  .r-navtoggle:checked ~ .r-navbtn { color: var(--r-nav-fg, #141414); }
+  :is(.r-navtoggle:checked ~ .r-navbtn, html[data-nav-open] .r-navbtn) { color: var(--r-nav-fg, #141414); }
   /* The visual mark stays 22px; this restores a 44px touch area around it. */
   .r-navbtn::after { content: ""; position: absolute; inset: -11px; }
   .r-navbtn span {
@@ -269,27 +287,56 @@
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
-    justify-content: center !important;
+    /* Was centred, back when the four top-level links were all this ever
+       held — a short list, always shorter than the screen. The sub-nav rows
+       (icon, title, description, feature card) mean About and Portfolio now
+       routinely overflow a phone's height on their own. Centring overflowing
+       flex content pushes its start above the container's own scroll origin,
+       which is a fixed height above y=0 that `overflow-y: auto` cannot
+       scroll back up to — so with `center` the top of the list, "About"
+       itself, becomes permanently unreachable the moment the list no longer
+       fits. Anchored top instead, so scrolling from 0 always reaches
+       everything, and padded down to clear the bar rather than relying on
+       centring to do it. */
+    justify-content: flex-start !important;
     gap: 0 !important;
-    /* Bottom padding reserves the CTA's strip so the links centre in the space
-       above it rather than in the whole panel and run into it on a short
-       screen. */
-    padding: 0 var(--valad-gutter) clamp(110px, 18vh, 170px) !important;
+    /* Bottom padding reserves the CTA's strip so the links do not run into it
+       on a short screen; top padding clears the fixed bar the overlay sits
+       under, now that content starts at the top instead of floating centred
+       past it. */
+    padding: calc(var(--valad-header-h) + 20px) var(--valad-gutter) clamp(110px, 18vh, 170px) !important;
     background: var(--r-nav-bg, #EDECE8);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-8px);
     overscroll-behavior: contain;
     transition: opacity 260ms ease, transform 320ms cubic-bezier(.4, 0, .2, 1), visibility 320ms;
+    /* The sub-nav rows below can run the list taller than the screen,
+       especially at 390 with both "About" and "Portfolio" expanded — this is
+       the one place that's allowed to scroll rather than clip or overlap the
+       CTA strip the bottom padding reserves. */
+    overflow-y: auto;
   }
-  .r-navtoggle:checked ~ .r-nav { opacity: 1; visibility: visible; transform: none; }
+  :is(.r-navtoggle:checked ~ .r-nav, html[data-nav-open] .r-nav) { opacity: 1; visibility: visible; transform: none; }
 
+  /* A row, not a headline. The first pass set these at 32px/450 — the mobile
+     display step, borrowed on the reasoning that valad.io has no overlay of
+     its own to copy. It reads wrong against the rest of the site: 32px is
+     the size a page's own H2 runs at, and 450 is heavier than any display
+     type here (the site sets 300 everywhere and varies size, not weight), so
+     four of them stacked came out chunkier and louder than anything they
+     link to. 24px at 300 is the same editorial voice as the pages behind it,
+     and each row is now a flex line with its affordance pushed to the far
+     edge rather than a word with a mark stuck to it. */
   .r-header .r-nav > a {
-    padding: 16px 0 !important;
-    /* 32px is the mobile display step — valad.io has no overlay of its own to
-       copy, so the panel borrows the scale rather than inventing a size. */
-    font-size: 32px !important;
-    line-height: 1.1 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 0 !important;
+    font-weight: 300 !important;
+    font-size: 24px !important;
+    line-height: 1.25 !important;
     letter-spacing: 0 !important;
     color: var(--r-nav-fg, #141414) !important;
     border-bottom: none !important;
@@ -297,13 +344,159 @@
     transform: translateY(10px);
     transition: opacity 260ms ease, transform 320ms cubic-bezier(.4, 0, .2, 1);
   }
-  .r-navtoggle:checked ~ .r-nav > a { opacity: 1; transform: none; }
-  /* stagger the items in behind the panel */
-  .r-navtoggle:checked ~ .r-nav > a:nth-child(1) { transition-delay: 60ms; }
-  .r-navtoggle:checked ~ .r-nav > a:nth-child(2) { transition-delay: 100ms; }
-  .r-navtoggle:checked ~ .r-nav > a:nth-child(3) { transition-delay: 140ms; }
-  .r-navtoggle:checked ~ .r-nav > a:nth-child(4) { transition-delay: 180ms; }
-  .r-navtoggle:checked ~ .r-nav > a:nth-child(5) { transition-delay: 220ms; }
+  /* These push into a panel rather than dropping one open, so the chevron
+     points the way the level moves — right, not down. Same 45deg box the
+     desktop caret is drawn from (valad-system.css), turned the other way and
+     sat on the row's far edge by the flex line above rather than tucked
+     against the label with a negative margin. */
+  .r-header .r-nav > a[href="about.html"]::after,
+  .r-header .r-nav > a[href="portfolio.html"]::after {
+    margin: 0 !important;
+    width: 8px;
+    height: 8px;
+    opacity: .5;
+    transform: rotate(-45deg) !important;
+  }
+  :is(.r-navtoggle:checked ~ .r-nav > a, html[data-nav-open] .r-nav > a) { opacity: 1; transform: none; }
+  /* Stagger the items in behind the panel. `:nth-of-type` rather than
+     `:nth-child` — the sub-nav blocks are now siblings interspersed between
+     these anchors, and child-position counting would reassign each link's
+     delay to whichever one now sits at that raw offset instead of its own. */
+  :is(.r-navtoggle:checked ~ .r-nav > a:nth-of-type(1), html[data-nav-open] .r-nav > a:nth-of-type(1)) { transition-delay: 60ms; }
+  :is(.r-navtoggle:checked ~ .r-nav > a:nth-of-type(2), html[data-nav-open] .r-nav > a:nth-of-type(2)) { transition-delay: 100ms; }
+  :is(.r-navtoggle:checked ~ .r-nav > a:nth-of-type(3), html[data-nav-open] .r-nav > a:nth-of-type(3)) { transition-delay: 140ms; }
+  :is(.r-navtoggle:checked ~ .r-nav > a:nth-of-type(4), html[data-nav-open] .r-nav > a:nth-of-type(4)) { transition-delay: 180ms; }
+  :is(.r-navtoggle:checked ~ .r-nav > a:nth-of-type(5), html[data-nav-open] .r-nav > a:nth-of-type(5)) { transition-delay: 220ms; }
+
+  /* Sub-nav — the desktop dropdown's own markup (`.r-mega-*`, built by the
+     same megaHTML() call), reflowed from its two-column panel into one
+     column that sits in the overlay's normal flow under "About" and
+     "Portfolio". The row and feature-card styling (icon box, arrow-on-hover,
+     description, image card) is inherited as-is from valad-system.css —
+     only the layout and the ink colour are overridden here, via the
+     --r-nav-* tokens set on .r-header--light/--dark above, so a row reads
+     correctly whichever colour the overlay opens on. */
+  @keyframes rNavSubIn {
+    from { opacity: 0; transform: translateX(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  /* Drill-down, not an accordion: the panel replaces the level above it
+     rather than expanding inside it. Gated on the root's `data-nav-sub` as
+     well as the block's own `.is-open` so that clearing the root attribute
+     alone — which is what closing the whole overlay does — is enough to
+     return to the top level, with no second place that has to be kept in
+     step. `display` cannot transition, so the entrance is an animation; it
+     slides in from the right, which is the direction the level moved. */
+  .r-nav-sub { display: none !important; }
+  html[data-nav-sub] .r-nav-sub.is-open {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 0 8px !important;
+    animation: rNavSubIn 280ms cubic-bezier(.22, .61, .36, 1) both;
+  }
+  /* Drilled in, the panel is the whole overlay: the top-level links, the
+     current-page rule beside one of them, and the CTA all belong to the
+     level that was left behind. The CTA especially — it is a page-level
+     action, not part of either menu. */
+  html[data-nav-sub] .r-header .r-nav > a { display: none !important; }
+  html[data-nav-sub] .r-header .r-cta { display: none !important; }
+
+  /* Back control — the only chrome the panel carries, standing in for the
+     parent link's own label. */
+  .r-nav-back {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    margin: 0 0 22px !important;
+    padding: 6px 0 !important;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: 'Saans', 'Saans Fallback', Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    letter-spacing: 0;
+    color: var(--r-nav-fg, #141414);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .r-nav-back svg { flex: 0 0 auto; }
+  /* Restores a 44px touch target around a control drawn at its type size. */
+  .r-nav-back { position: relative; }
+  .r-nav-back::after { content: ""; position: absolute; inset: -12px -16px; }
+
+  .r-nav-sub .r-mega-inner {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+  .r-nav-sub .r-mega-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 16px 0 !important;
+    border-bottom: 1px solid var(--r-nav-rule) !important;
+  }
+  .r-nav-sub .r-mega-group:first-child { padding-top: 0 !important; }
+  .r-nav-sub .r-mega-label {
+    font-size: 11px !important;
+    color: var(--r-nav-dim) !important;
+    padding-top: 0 !important;
+  }
+  .r-nav-sub .r-mega-items {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  .r-nav-sub .r-mega-item { color: var(--r-nav-fg) !important; grid-template-columns: 28px minmax(0, 1fr) !important; gap: 0 12px !important; }
+  .r-nav-sub .r-mega-icon { width: 28px !important; height: 28px !important; border-color: var(--r-nav-border) !important; }
+  .r-nav-sub .r-mega-icon svg { width: 15px !important; height: 15px !important; }
+  /* The icon glyph's stroke is authored #141414 inline in the SVG markup —
+     fine on the desktop panel's fixed white background, invisible on a dark
+     overlay without this. */
+  .r-nav-sub .r-mega-icon svg path { stroke: var(--r-nav-fg) !important; }
+  /* A step below the 17px first tried here. These rows are the panel's whole
+     content once drilled in, so they do not have to hold their own against
+     the 32px top-level links the way they would in a list beneath them —
+     and at 17px with a description under each, seven rows and a feature card
+     ran well past a phone screen before the card was even reachable. */
+  .r-nav-sub .r-mega-head { font-size: 15px !important; line-height: 1.35 !important; color: var(--r-nav-fg) !important; }
+  .r-nav-sub .r-mega-head svg { width: 13px !important; height: 13px !important; }
+  .r-nav-sub .r-mega-head svg path { stroke: var(--r-nav-fg) !important; }
+  .r-nav-sub .r-mega-desc { margin-top: 2px !important; max-width: none !important; font-size: 13px !important; line-height: 1.45 !important; color: var(--r-nav-desc) !important; }
+
+  .r-nav-sub .r-mega-feature { padding: 20px 0 0 !important; }
+  .r-nav-sub .r-mega-feature-label { font-size: 11px !important; color: var(--r-nav-dim) !important; }
+  .r-nav-sub .r-mega-feature-card { margin-top: 16px !important; color: var(--r-nav-fg) !important; }
+  .r-nav-sub .r-mega-feature-head { margin-top: 12px !important; font-size: 15px !important; line-height: 1.35 !important; color: var(--r-nav-fg) !important; }
+
+  /* The bar's own row stays put while the overlay scrolls under it: the
+     wordmark and the X are `position: fixed` at z-62 (above the overlay's
+     61), so without a plate of their own the panel's rows scroll up and
+     pass visibly *through* them — a row of type crossing the wordmark and
+     coming out the other side. This is that plate: the bar's height, filled
+     in the overlay's own colour, sitting between the two. `pointer-events:
+     none` so it never takes the tap meant for the X behind it, and the two
+     marks lift to 63 so they stay above it.
+
+     Keyed off `:has(:checked)` as well as the root attribute, the same pair
+     every other open-state rule in this block uses, so it still holds with
+     the script blocked. */
+  .r-header:has(.r-navtoggle:checked)::before,
+  html[data-nav-open] .r-header::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--valad-header-h);
+    background: var(--r-nav-bg, #FFFFFF);
+    z-index: 62;
+    pointer-events: none;
+  }
+  :is(.r-navtoggle:checked ~ .r-navbtn, html[data-nav-open] .r-navbtn),
+  .r-header:has(.r-navtoggle:checked) .r-logo,
+  html[data-nav-open] .r-header .r-logo { z-index: 63; }
 
   /* Current page: a rule in the accent, standing in for the desktop underline
      that the overlay drops. Marked with a class rather than keyed off the inline
@@ -321,9 +514,9 @@
   }
 
   /* Hamburger -> X (sits above the overlay so it also closes it) */
-  .r-navtoggle:checked ~ .r-navbtn span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
-  .r-navtoggle:checked ~ .r-navbtn span:nth-child(2) { opacity: 0; }
-  .r-navtoggle:checked ~ .r-navbtn span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+  :is(.r-navtoggle:checked ~ .r-navbtn span:nth-child(1), html[data-nav-open] .r-navbtn span:nth-child(1)) { transform: translateY(5px) rotate(45deg); }
+  :is(.r-navtoggle:checked ~ .r-navbtn span:nth-child(2), html[data-nav-open] .r-navbtn span:nth-child(2)) { opacity: 0; }
+  :is(.r-navtoggle:checked ~ .r-navbtn span:nth-child(3), html[data-nav-open] .r-navbtn span:nth-child(3)) { transform: translateY(-5px) rotate(-45deg); }
 
   /* The CTA belongs to the menu on mobile, not to the bar. Its label is long
      ("Digital Assets Division" against valad.io's "Get in contact") and sharing
@@ -352,7 +545,7 @@
     transition: opacity 260ms ease, transform 320ms cubic-bezier(.4, 0, .2, 1), visibility 320ms;
   }
   /* Last in after the five links, which run 60ms to 220ms. */
-  .r-navtoggle:checked ~ .r-cta {
+  :is(.r-navtoggle:checked ~ .r-cta, html[data-nav-open] .r-cta) {
     opacity: 1;
     visibility: visible;
     transform: none;
@@ -764,15 +957,19 @@
     background: #FFFFFF !important;
   }
 
+  /* Same square hairline box as the desktop row and the About panel — only the
+     size steps down. The fills that used to be restated here are gone: the box
+     is transparent now and the panel is read through the border instead. */
   #chainRow [data-icon] {
     width: 40px !important;
     height: 40px !important;
-    border-radius: 10px;
+    border-radius: 0 !important;
     opacity: 1 !important;
-    background: rgba(255,255,255,.08) !important;
+    background: transparent !important;
+    border: 1px solid rgba(255,255,255,.22);
   }
   #chainRow [data-icon] svg { stroke: #fff !important; }
-  #chainRow [data-active] [data-icon] { background: rgba(20,20,20,.06) !important; }
+  #chainRow [data-active] [data-icon] { border-color: rgba(20,20,20,.18); }
   #chainRow [data-active] [data-icon] svg { stroke: #141414 !important; }
 
   /* The text column is the panel's only other child. Its authored 20px gap is
@@ -816,6 +1013,18 @@
 }
 
 /* Team carousel ------------------------------------------------------------ */
+@media (max-width: 1199.98px) {
+  /* Three to the row between 810 and 1199. The card count is the only thing
+     that moves across breakpoints on valad.io's partner slideshow — four at
+     1440, three at 810, one at 390 — while the 365px image height holds
+     throughout. Measured at 810: 237x365 in a 730 column, which is
+     (730 - 2x10) / 3.
+
+     Without this the tablet tier fell through to the desktop four-up and put
+     four cards in a 730 column: 175x365, a 0.48 sliver against the 0.85 the
+     card is meant to be. The mobile rule below overrides this in turn. */
+  #teamRow > div { flex: 0 0 calc((100% - 20px) / 3) !important; }
+}
 @media (max-width: 809.98px) {
   /* One card to the content column, which is what valad.io's partner slideshow
      does at this width: measured 350x365 at 390 — the full 350 column, on the
@@ -928,6 +1137,28 @@
   .r-modal-meta { flex-wrap: wrap !important; gap: 20px 26px !important; }
   .r-modal-meta > div { padding-right: 26px !important; }
   .r-modal-meta > div:last-child { border-right: none !important; }
+}
+
+/* Leadership + Partners grids ----------------------------------------------- *
+   Leadership carries a name, role and a line of description per card, so it
+   follows the text-bearing `.r-3col` collapse (2-up, then 1-up) rather than
+   the image-only asset grid's steady 2-up. Partners is the same nine-logo,
+   three-column shape the homepage's own partner strip holds at every width —
+   see `.r-logo-grid` above — so it only shrinks, it never re-columns.        */
+@media (max-width: 1199.98px) {
+  #leaderGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  #leaderGrid > a {
+    border-right: 1px solid rgba(20,20,20,.18) !important;
+    border-bottom: 1px solid rgba(20,20,20,.18) !important;
+  }
+  #leaderGrid > a:nth-child(2n) { border-right: none !important; }
+  #partnerGrid > a { min-height: clamp(150px, 22vw, 200px) !important; }
+}
+@media (max-width: 809.98px) {
+  #leaderGrid { grid-template-columns: minmax(0, 1fr) !important; }
+  #leaderGrid > a { border-right: none !important; }
+  #partnerGrid > a { min-height: 130px !important; padding: 18px !important; }
+  #partnerGrid img { max-width: 60% !important; }
 }
 
 

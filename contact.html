@@ -31,8 +31,8 @@
   @keyframes riseIn{from{opacity:0;transform:translateY(115%)}to{opacity:1;transform:translateY(0)}}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
-<link rel="stylesheet" href="valad-system.css?v=9">
-<link rel="stylesheet" href="responsive.css?v=42">
+<link rel="stylesheet" href="valad-system.css?v=20">
+<link rel="stylesheet" href="responsive.css?v=45">
 <script defer src="./header-scroll.js"></script>
 </helmet>
 
@@ -201,6 +201,31 @@ class Component extends DCLogic {
     });
   }
 }
+</script>
+<script>
+/* Plain, non-DC script — deliberately outside the Component class above.
+   The DC runtime commits an initial render of the x-dc block and then
+   re-keys the tree shortly after (documented in header-scroll.js). The class
+   above captures its [data-reveal] elements once, in componentDidMount, and
+   if that capture lands on the pass that gets discarded, every element
+   authored with an inline opacity:0 start stays invisible for good. On this
+   page that was the email address and all three office addresses — the
+   entire contents of the page, hidden. This re-queries the DOM fresh at
+   each checkpoint rather than holding a reference, so it always sees
+   whatever is actually on screen. */
+(function () {
+  function reveal() {
+    document.querySelectorAll("[data-reveal]").forEach(function (el) {
+      if (getComputedStyle(el).opacity === "0") {
+        el.style.opacity = "1";
+        el.style.transform = "none";
+      }
+    });
+  }
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { reveal(); return; }
+  [300, 900, 2000].forEach(function (t) { setTimeout(reveal, t); });
+  window.addEventListener("scroll", reveal, { passive: true });
+})();
 </script>
 </body>
 </html>

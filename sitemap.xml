@@ -3,6 +3,10 @@
   <url><loc>https://valad.io/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://valad.io/about.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://valad.io/portfolio.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://valad.io/investment-management.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://valad.io/leadership.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://valad.io/partners.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://valad.io/development-management.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://valad.io/news.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://valad.io/careers.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://valad.io/contact.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>

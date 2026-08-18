@@ -134,6 +134,12 @@
   --v-space-xl:  180px;
   --v-space-2xl: 200px;
   --v-space-3xl: 220px;
+
+  /* One bar of the dark-to-light section wipe. Six of them stack, so the strip
+     is 84px and sits well inside the 160px of top padding every light section
+     opens with. Mobile takes it down in responsive.css, where that padding
+     compresses to 100px. */
+  --wipe-band: 14px;
 }
 
 html, body {
@@ -222,6 +228,20 @@ html, body {
    another one; this selector is the more specific of the two, so it wins where
    it applies and defers to the open-overlay rule that is more specific still. */
 .r-header--hero-dark:not(.r-header--solid) .r-logo img {
+  filter: invert(1) brightness(1.7) !important;
+}
+
+/* Careers runs the dark bar variant, which is dark at every scroll position —
+   transparent over its dark hero, then rgba(20,20,20,.9) once plated. It ships
+   the same dark wordmark file every other page does and nothing ever inverted
+   it, so the mark was dark on dark and simply did not appear. The rule above
+   only covers a light bar sitting temporarily over a dark hero, which is a
+   different case: there the inversion has to switch off once the bar plates,
+   and here it must not. Same transform, held for good.
+
+   `[data-mega="open"]` further down turns it back off, because the panel takes
+   the bar white and a white wordmark on white is the bug in reverse. */
+.r-header--dark .r-logo img {
   filter: invert(1) brightness(1.7) !important;
 }
 /* valad.io sets the nav links to a 15px line-height, the same as their size, so
@@ -490,3 +510,376 @@ select {
   transition: background-color 260ms ease, color 260ms ease;
 }
 .r-cta-band-btn:hover { background: #141414; color: #EDECE8; }
+
+/* About mega-menu -----------------------------------------------------------
+   A panel that drops from the bar when About is opened. Built once by
+   header-scroll.js and inserted after the header on every page, rather than
+   pasted into all twenty-one — the header is inline markup with no include, so
+   duplicating a block this size would mean twenty-one copies to keep in step.
+
+   Laid out on the same spine as the rest of the site: the gutter carries the
+   inset, so the panel's content is capped at --valad-max and centred exactly as
+   every section is, and the row rules are the same hairline the footer uses.
+
+   Off below 810, where the bar hands its navigation to the burger overlay. */
+.r-mega {
+  position: fixed;
+  top: var(--valad-header-h);
+  left: 0;
+  width: 100%;
+  z-index: 59;
+  background: #FFFFFF;
+  border-top: 1px solid rgba(20, 20, 20, .13);
+  box-shadow: 0 18px 40px rgba(20, 20, 20, .07);
+  padding: 0 var(--valad-gutter);
+  /* Collapsed rather than display:none so the open can be animated and the
+     panel still measures for assistive tech when open. */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 260ms cubic-bezier(.22,.61,.36,1),
+              transform 260ms cubic-bezier(.22,.61,.36,1),
+              visibility 0s linear 260ms;
+}
+.r-mega[data-open] {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0s, 0s, 0s;
+}
+.r-mega-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 0 clamp(40px, 5vw, 90px);
+  padding: 8px 0 44px;
+}
+/* Each group is a label column beside its links, ruled off from the one above
+   exactly as valad.io rules its footer columns. */
+.r-mega-group {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 0 clamp(20px, 3vw, 46px);
+  padding: 30px 0;
+  border-bottom: 1px solid rgba(20, 20, 20, .13);
+}
+.r-mega-group:last-of-type { border-bottom: 0; }
+.r-mega-label {
+  font-family: var(--valad-font);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(20, 20, 20, .45);
+  padding-top: 4px;
+}
+.r-mega-items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px clamp(24px, 4vw, 64px);
+}
+/* Icon box, then the title with the arrow pushed to the far edge of the row,
+   then the description indented to the title. */
+.r-mega-item {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 0 14px;
+  color: #141414;
+}
+.r-mega-icon {
+  grid-row: 1 / 3;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(20, 20, 20, .16);
+  transition: border-color 260ms ease, background-color 260ms ease;
+}
+.r-mega-item:hover .r-mega-icon { border-color: rgba(20, 20, 20, .4); background: #EDECE8; }
+.r-mega-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--valad-font);
+  /* 15px, the bar's own size — the panel drops out of the nav, so its items
+     read as a continuation of it rather than as a heading level of their own.
+     Weight stays at 400 against the bar's 450: same size, one step lighter, so
+     the nav still reads as the control and these as its contents. */
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: #141414;
+}
+/* The arrow steps forward on hover, which is the same gesture the portfolio
+   and news cards use. */
+.r-mega-head svg {
+  flex: 0 0 auto;
+  transition: transform 260ms cubic-bezier(.22,.61,.36,1);
+}
+.r-mega-item:hover .r-mega-head svg { transform: translate(3px, -3px); }
+.r-mega-desc {
+  margin: 4px 0 0;
+  max-width: 260px;
+  font-family: var(--valad-font);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: 0;
+  color: rgba(20, 20, 20, .55);
+  text-wrap: pretty;
+}
+.r-mega-item:hover .r-mega-desc { color: rgba(20, 20, 20, .8); }
+/* The featured rail sits in its own column and takes the full stack height. */
+.r-mega-feature { padding: 30px 0 0; }
+.r-mega-feature-label::before {
+  content: "// ";
+  color: rgba(20, 20, 20, .3);
+}
+.r-mega-feature-label {
+  font-family: var(--valad-font);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(20, 20, 20, .45);
+}
+.r-mega-feature-card { display: block; margin-top: 22px; color: #141414; }
+.r-mega-feature-img {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: #EDECE8;
+}
+/* The arrow button sits over the image's lower-left corner, as it does on
+   Augustus's featured card. */
+.r-mega-feature-img::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 46px;
+  height: 46px;
+  background: #141414
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3 8h10M9 4l4 4-4 4' stroke='%23FFFFFF' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 16px 16px no-repeat;
+}
+.r-mega-feature-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 700ms cubic-bezier(.22,.61,.36,1);
+}
+.r-mega-feature-card:hover .r-mega-feature-img img { transform: scale(1.04); }
+.r-mega-feature-head {
+  display: block;
+  margin: 16px 0 0;
+  font-family: var(--valad-font);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 23px;
+  letter-spacing: 0;
+  color: #141414;
+  text-wrap: pretty;
+}
+/* The chevron on the bar's two menu links. Drawn as a pseudo-element keyed off
+   the href rather than an SVG appended by the script, because the DC runtime
+   replaces the nav anchors on re-render and takes any injected child with them.
+   The href is authored markup, so it survives; the rotation reads the open flag
+   from the root element for the same reason.
+
+   Rotation is keyed to `data-mega-id` rather than to `data-mega` so only the
+   caret belonging to the panel that is actually open turns — with both menus
+   sharing the one open flag, the plain `[data-mega="open"]` form flipped both
+   chevrons whichever of them you clicked. */
+.r-header .r-nav a[href="about.html"]::after,
+.r-header .r-nav a[href="portfolio.html"]::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: -3px 0 0 8px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(45deg);
+  transform-origin: 60% 60%;
+  transition: transform 260ms cubic-bezier(.22,.61,.36,1);
+  vertical-align: middle;
+}
+[data-mega-id="aboutMega"] .r-header .r-nav a[href="about.html"]::after,
+[data-mega-id="portfolioMenu"] .r-header .r-nav a[href="portfolio.html"]::after {
+  transform: rotate(-135deg);
+}
+
+/* Mobile/tablet sub-nav (header-scroll.js). Hidden by default: at desktop
+   widths `.r-nav` is the horizontal bar and this would otherwise land as an
+   extra flex item squeezed in next to "About" and "Portfolio" — the
+   responsive mobile block is what turns it on, under 810px only. */
+.r-nav-sub { display: none; }
+
+/* With the panel open the bar takes its plate whatever the scroll state. Over a
+   hero the bar is transparent, and a white panel hanging off a transparent bar
+   reads as two disconnected layers with the photograph running between them.
+
+   Every declaration here is `!important` because it has to beat an inline
+   style, not another rule: the homepage and Careers paint their bar from their
+   own scroll components, which write background, shadow and the logo's filter
+   straight onto the element. An author `!important` outranks a normal inline
+   declaration, which is the one case where it does.
+
+   The bar's own hairline is dropped rather than doubled — the panel carries a
+   border on its top edge, and the two would land on the same pixel. */
+[data-mega="open"] .r-header {
+  background: #FFFFFF !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* A hero-dark page runs its links and wordmark inverted while the bar is over
+   the photograph. On white they would be white on white. */
+[data-mega="open"] .r-header .r-nav a { color: #141414 !important; }
+[data-mega="open"] .r-header .r-logo img { filter: none !important; }
+
+/* The scrim closes the panel on a click anywhere off it, and dims what is
+   behind so the panel reads as a layer rather than part of the page. */
+.r-mega-scrim {
+  position: fixed;
+  inset: var(--valad-header-h) 0 0 0;
+  z-index: 58;
+  background: rgba(20, 20, 20, .22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+.r-mega-scrim[data-open] { opacity: 1; pointer-events: auto; }
+
+/* How we operate — icon boxes ------------------------------------------------
+   The same mark the About panel uses: a square hairline box with a thin line
+   icon in it, rather than a filled rounded tile. Only the box changes; the
+   glyphs and the section's own dim-when-closed behaviour are untouched.
+
+   Written here rather than on the elements because the chain script rewrites
+   `background` inline on every state change — hence `!important` on the two
+   properties it sets. The border follows the panel instead: the script marks
+   the open panel with `data-active`, which is light, so the border there is
+   dark ink and on the closed dark panels it is light.
+
+   Stroke drops 1.5 -> 1.3 to match the panel's icons, and the script's own
+   stroke colour swap is left alone: it already flips with the panel. */
+#chainRow [data-icon] {
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, .22);
+  transition: opacity 620ms ease, border-color 620ms ease;
+}
+#chainRow [data-panel][data-active] [data-icon] {
+  border-color: rgba(20, 20, 20, .18);
+}
+#chainRow [data-icon] svg { stroke-width: 1.3; }
+
+/* Dark-to-light section wipe -------------------------------------------------
+   Every boundary where a dark section hands over to a light one is drawn as a
+   stack of thin bars that fill in as the light section rises, rather than as a
+   single hard edge. Each bar grows from its own top-left corner — wider and
+   taller at once — and the bars run bottom-first, so the edge reads as a comb
+   closing up from the seam rather than as a curtain.
+
+   The strip sits inside the light section, painted in the dark section's colour
+   with the light colour growing over it. That direction matters: doing it the
+   other way, as an overlay hanging above the section, would put a light plate
+   over the last 84px of the dark section and cover whatever it closes with.
+   This way the strip only ever occupies the light section's own top padding,
+   which is 160px and empty.
+
+   Six background layers on one pseudo-element rather than six divs, because the
+   DC runtime diffs the rendered tree against itself on a second pass after
+   load: an extra child inserted into a section it owns puts that diff out of
+   step, and it patches the section after it into the section before — which is
+   how a strip built for News ended up inside Contact. A pseudo-element is not a
+   node and cannot be diffed. Each layer is a flat fill of the light colour,
+   sized to its bar and pinned to its band's top-left corner, so growing one is
+   one background-size and no reflow.
+
+   `--wipe-from`, `--wipe-to` and the six progress values are written by
+   header-scroll.js. A strip that never gets them renders as the fully-closed
+   edge, which is the state the boundary has always had, so a blocked or failed
+   script costs nothing. */
+.r-wipe-host {
+  position: relative;
+  /* Makes the section a stacking context so the strip's negative index lands
+     between the section's background and its content rather than sinking
+     behind the section's own paint. */
+  isolation: isolate;
+  /* No rule across the seam. Several sections open on a hairline top border,
+     and a line drawn along the top of the strip turns the bars into the
+     contents of a bordered box — it reads as a graphic that belongs to the
+     section rather than as the edge between two colours. `!important` because
+     those borders are authored inline. */
+  border-top: 0 !important;
+}
+
+.r-wipe-host::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--wipe-band) * 6);
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--wipe-from, transparent);
+  /* Each bar's leading edge fades rather than cutting straight to the dark
+     base colour — a hard stop is what makes a growing bar read as a
+     rectangle with a border on it; a soft one reads as light arriving. The
+     fade is a percentage of the bar's own width, so it stays proportional
+     instead of swelling to swallow a short bar the way a fixed pixel width
+     did, and it is scaled by (1 − p) so it narrows to nothing as the bar
+     closes: at rest there is no feather left to leave a dim sliver down the
+     right-hand side of a settled boundary. */
+  background-image:
+    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p0, 1)) * 9%), transparent 100%),
+    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p1, 1)) * 9%), transparent 100%),
+    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p2, 1)) * 9%), transparent 100%),
+    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p3, 1)) * 9%), transparent 100%),
+    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p4, 1)) * 9%), transparent 100%),
+    linear-gradient(to right, var(--wipe-to, transparent) 0%, var(--wipe-to, transparent) calc(100% - (1 - var(--wipe-p5, 1)) * 9%), transparent 100%);
+  background-repeat: no-repeat;
+  /* Width animates; height does not. The original drove both channels off the
+     same fraction — each bar a growing box, `p` of its width and `p` of its
+     band — on the reasoning that a bar should read as being drawn rather than
+     stretched. That is what put the lines in it, and no amount of bleed fixed
+     them: a height of `p × 14px` is fractional for every value of p except 1,
+     a fractional background-size is resolved against the device pixel grid
+     rather than composited, and the rounding leaves a hairline of the dark
+     base colour between one band and the next. Six bands, five seams, redrawn
+     on every scroll frame — the "borders on every strip".
+
+     Holding each layer at a constant whole-pixel band height removes the
+     variable those seams were computed from. The bands now tile exactly at
+     any progress, the 1px bleed guarantees the overlap even where --wipe-band
+     is later set to something odd, and the comb still reads as a comb because
+     the stagger between bars is carried entirely by width — which is free to
+     be fractional, since a subpixel *vertical* edge has no neighbour to leave
+     a gap against. */
+  background-size:
+    calc(var(--wipe-p0, 1) * 100%) calc(var(--wipe-band) + 1px),
+    calc(var(--wipe-p1, 1) * 100%) calc(var(--wipe-band) + 1px),
+    calc(var(--wipe-p2, 1) * 100%) calc(var(--wipe-band) + 1px),
+    calc(var(--wipe-p3, 1) * 100%) calc(var(--wipe-band) + 1px),
+    calc(var(--wipe-p4, 1) * 100%) calc(var(--wipe-band) + 1px),
+    calc(var(--wipe-p5, 1) * 100%) calc(var(--wipe-band) + 1px);
+  background-position:
+    0 0,
+    0 var(--wipe-band),
+    0 calc(var(--wipe-band) * 2),
+    0 calc(var(--wipe-band) * 3),
+    0 calc(var(--wipe-band) * 4),
+    0 calc(var(--wipe-band) * 5);
+}
