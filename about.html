@@ -223,6 +223,37 @@ class Component extends DCLogic {
     window.removeEventListener("scroll", this.onScroll);
     if (this.io) this.io.disconnect();
   }
+  /* Both scrollers on this page are driven entirely from refs captured once,
+     in componentDidMount. The runtime re-keys the tree shortly after mount,
+     which leaves every one of those refs pointing at a node no longer in the
+     document — so `frame()` goes on setting opacity and colour on detached
+     elements while the ones actually on screen never change. The page does
+     not error: it renders the first value and the first still, and then you
+     scroll 4320px of values and 5400px of journey with nothing moving.
+     Roughly eleven screens of dead page, which is what "no content showing"
+     was.
+
+     Checked by identity rather than `isConnected`: the test is whether the
+     element in the document is still the one we hold, which is also false
+     when the runtime swaps in a fresh node. Re-caching is not free — it
+     builds two IntersectionObservers — so it must not run per frame, and it
+     does not: once the refs match the live tree this is two getElementById
+     calls and two comparisons, and the swap only ever happens once. */
+  refreshRefs() {
+    const liveVals = document.getElementById("valuesScroll");
+    const liveJourney = document.getElementById("journeyScroll");
+    const valsStale = liveVals && liveVals !== this.$scroll;
+    const journeyStale = liveJourney && liveJourney !== this.$journey;
+    if (!valsStale && !journeyStale) return;
+    this.cacheRefs();
+    /* Both indices track "what is currently painted" and are what the early
+       return in each frame compares against. After a re-cache nothing is
+       painted on the new nodes, so they have to go back to -1 or the first
+       frame would match the stale index and skip the repaint entirely —
+       leaving the new tree as frozen as the old one. `cacheRefs` already
+       resets the journey's; this covers the values'. */
+    this.activeValue = -1;
+  }
   cacheRefs() {
     this.$journey = document.getElementById("journeyScroll");
     this.$jvid = [0, 1, 2].map((i) => document.querySelector('[data-jvid="' + i + '"]'));
@@ -337,6 +368,7 @@ class Component extends DCLogic {
     }, 2600);
   }
   frame() {
+    this.refreshRefs();
     this.scrubHeadings();
     this.journeyFrame();
     const el = this.$scroll;
