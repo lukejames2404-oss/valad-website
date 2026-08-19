@@ -1165,6 +1165,10 @@
     border-bottom: 1px solid rgba(20,20,20,.18) !important;
   }
   #leaderGrid > a:nth-child(2n) { border-right: none !important; }
+  /* An odd card count leaves the last one alone on its row with nothing in the
+     cell beside it, and the two-up rule above only spares the even positions —
+     so that card drew a divider down the middle of a half-empty row. */
+  #leaderGrid > a:last-child { border-right: none !important; }
   #partnerGrid > a { min-height: clamp(150px, 22vw, 200px) !important; }
 }
 @media (max-width: 809.98px) {

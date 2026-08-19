@@ -285,15 +285,16 @@
       { t: "Investment Management", d: "Value-add, opportunistic and core-plus", href: "investment-management.html", i: I.investment }
     ]}
   ];
+  /* The image is the story's own slot, never a slot picked by eye: the news
+     index, the article page and the homepage rail all read one slot per story,
+     so quoting it here is what keeps the panel's photo the story's photo when
+     any of those is re-shot. This ran news-img-1 under a news-img-2 headline
+     once already. */
   var FEATURE = {
     label: "Featured",
-    /* news-img-2 is the summit story's own slot -- the news index, the story
-       page and the homepage rail all read it for that headline. This pointed at
-       news-img-1, which is the Glasgow co-living story, so the panel ran the
-       wrong photo under the right headline. */
-    img: "assets/slots/news-img-2.webp",
-    head: "Valad at the Real-World Asset Summit, New York",
-    href: "valad-real-world-asset-summit-new-york.html"
+    img: "assets/slots/news-img-5.webp",
+    head: "Valad Advances Its On-Chain Real Estate Credit Strategy",
+    href: "on-chain-real-estate-private-credit-tokenisation.html"
   };
 
   /* Our Sectors is the homepage's pinned sector scroller, so it is addressed

@@ -598,7 +598,16 @@ select {
   border: 1px solid rgba(20, 20, 20, .16);
   transition: border-color 260ms ease, background-color 260ms ease;
 }
-.r-mega-item:hover .r-mega-icon { border-color: rgba(20, 20, 20, .4); background: #EDECE8; }
+/* Hover fills the icon box with the accent. Scoped to `.r-mega`, which is the
+   desktop panel's own class — the burger's sub-panels render the same rows from
+   the same markup but without it, and a colour that only means "your pointer is
+   here" should not be reachable by a tap that sticks.
+
+   The accent lands on the box rather than on the glyph's stroke. #BAD2FF is a
+   pale blue: as an 1.3px stroke on this panel's ground it reads as the icon
+   having faded out rather than as it having gone blue, while behind a #141414
+   glyph it is unmistakable and leaves the mark legible. */
+.r-mega .r-mega-item:hover .r-mega-icon { border-color: #BAD2FF; background: #BAD2FF; }
 .r-mega-head {
   display: flex;
   align-items: flex-start;
