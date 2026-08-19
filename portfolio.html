@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Portfolio | UK Real Estate Assets | Valad</title>
 <meta name="description" content="Valad&#x27;s UK real estate portfolio across co-living, logistics, residential and commercial — value add and opportunistic investments in delivery and realised.">
-<meta property="og:url" content="https://valad.io/portfolio.html">
+<meta property="og:url" content="https://www.valadassetmanagement.com/portfolio.html">
 <meta property="og:site_name" content="Valad Asset Management">
-<meta property="og:image" content="https://valad.io/assets/closing-band.jpg">
-<meta property="og:image:width" content="2000">
-<meta property="og:image:height" content="1325">
+<meta property="og:image" content="https://www.valadassetmanagement.com/assets/share-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Portfolio | UK Real Estate Assets | Valad">
 <meta name="twitter:description" content="Valad&#x27;s UK real estate portfolio across co-living, logistics, residential and commercial — value add and opportunistic investments in delivery and realised.">
-<meta name="twitter:image" content="https://valad.io/assets/closing-band.jpg">
-<link rel="canonical" href="https://valad.io/portfolio.html">
+<meta name="twitter:image" content="https://www.valadassetmanagement.com/assets/share-card.jpg">
+<link rel="canonical" href="https://www.valadassetmanagement.com/portfolio.html">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Portfolio | UK Real Estate Assets | Valad">
 <meta property="og:description" content="Valad&#x27;s UK real estate portfolio across co-living, logistics, residential and commercial — value add and opportunistic investments in delivery and realised.">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Valad Asset Management", "legalName": "Valad Asset Management Limited", "alternateName": ["Valad", "ValadAssetManagement", "Valad Asset Management Ltd", "Valad Group"], "url": "https://valad.io", "logo": {"@type": "ImageObject", "url": "https://valad.io/assets/logo-valad-340.png"}, "description": "UK real estate investment and asset management company specialising in co-living, student accommodation, residential, logistics and commercial assets.", "email": "valadassetmanager@pm.me", "address": [{"@type": "PostalAddress", "streetAddress": "71–75 Shelton Street, Covent Garden", "addressLocality": "London", "postalCode": "WC2H 9JQ", "addressCountry": "GB"}, {"@type": "PostalAddress", "streetAddress": "44 Esplanade", "addressLocality": "St Helier", "postalCode": "JE4 9WG", "addressCountry": "JE"}, {"@type": "PostalAddress", "streetAddress": "2 Rue Eugene Ruppert", "addressLocality": "Luxembourg", "postalCode": "L-2453", "addressCountry": "LU"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Valad Asset Management", "legalName": "Valad Asset Management Limited", "alternateName": ["Valad", "ValadAssetManagement", "Valad Asset Management Ltd", "Valad Group"], "url": "https://www.valadassetmanagement.com", "logo": {"@type": "ImageObject", "url": "https://www.valadassetmanagement.com/assets/logo-valad-340.png"}, "description": "UK real estate investment and asset management company specialising in co-living, student accommodation, residential, logistics and commercial assets.", "email": "valadassetmanager@pm.me", "address": [{"@type": "PostalAddress", "streetAddress": "71–75 Shelton Street, Covent Garden", "addressLocality": "London", "postalCode": "WC2H 9JQ", "addressCountry": "GB"}, {"@type": "PostalAddress", "streetAddress": "44 Esplanade", "addressLocality": "St Helier", "postalCode": "JE4 9WG", "addressCountry": "JE"}, {"@type": "PostalAddress", "streetAddress": "2 Rue Eugene Ruppert", "addressLocality": "Luxembourg", "postalCode": "L-2453", "addressCountry": "LU"}]}</script>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
@@ -135,7 +135,7 @@
   </div>
 
   <div style="margin-top:26px;display:flex;align-items:center;gap:20px;min-height:24px">
-    <div id="resultCount" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:0px;color:rgba(20,20,20,.45)">12 investments</div>
+    <div id="resultCount" style="font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:0px;color:rgba(20,20,20,.45)">Some of our assets</div>
     <button id="clearFilters" onClick="{{ clear }}" style="display:none;background:transparent;border:none;padding:0;cursor:pointer;font-family:'Saans','Saans Fallback',Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:0px;color:#141414;border-bottom:1px solid rgba(20,20,20,.4)" style-hover="opacity:.55">Clear all</button>
   </div>
 </section>
@@ -304,8 +304,10 @@ class Component extends DCLogic {
     this.scrubHeadings();
     this.selects = Array.from(document.querySelectorAll("select[data-filter]"));
     this.cards = Array.from(document.querySelectorAll("[data-asset]"));
-    this.onChange = () => this.apply();
-    this.selects.forEach((s) => s.addEventListener("change", this.onChange));
+    this.onChange = (e) => {
+      if (e.target && e.target.matches && e.target.matches("select[data-filter]")) this.apply();
+    };
+    document.addEventListener("change", this.onChange);
     this.apply();
 
     this.modal = document.getElementById("assetModal");
@@ -317,64 +319,91 @@ class Component extends DCLogic {
     this.modalDesc = document.getElementById("modalDesc");
     this.modalClose = document.getElementById("modalClose");
 
+    /* Delegated on document rather than bound per-card, which is what
+       partners.html already had to do and for the same reason: the DC runtime
+       commits an initial render and then re-keys the tree, which silently
+       detaches listeners bound to the first pass's elements. `this.cards` was
+       captured during that first pass, so by the time anyone clicks, those
+       nodes are gone from the document and every click landed on nothing --
+       the modal never opened, on any viewport. Reading the target at click
+       time cannot go stale. */
     this.onCardClick = (e) => {
+      const card = e.target.closest("[data-asset]");
+      if (!card || !document.getElementById("assetGrid").contains(card)) return;
       e.preventDefault();
-      this.openModal(e.currentTarget);
+      this.openModal(card);
     };
-    this.cards.forEach((c) => c.addEventListener("click", this.onCardClick));
+    document.addEventListener("click", this.onCardClick);
 
+    /* Backdrop and close button share one delegated handler for the same
+       reason the cards do -- both nodes are replaced by the re-render. */
     this.onModalBackdropClick = (e) => {
-      if (e.target === this.modal) this.closeModal();
+      const modal = this.$("assetModal");
+      if (!modal) return;
+      if (e.target === modal || (e.target.closest && e.target.closest("#modalClose"))) this.closeModal();
     };
     this.onKeydown = (e) => {
       if (e.key === "Escape") this.closeModal();
     };
-    this.modal.addEventListener("click", this.onModalBackdropClick);
-    this.modalClose.addEventListener("click", () => this.closeModal());
+    document.addEventListener("click", this.onModalBackdropClick);
     document.addEventListener("keydown", this.onKeydown);
   }
   componentWillUnmount() {
     window.removeEventListener("scroll", this.onScroll);
     if (this.io) this.io.disconnect();
-    if (this.selects) this.selects.forEach((s) => s.removeEventListener("change", this.onChange));
-    if (this.cards) this.cards.forEach((c) => c.removeEventListener("click", this.onCardClick));
-    if (this.modal) this.modal.removeEventListener("click", this.onModalBackdropClick);
+    document.removeEventListener("change", this.onChange);
+    document.removeEventListener("click", this.onCardClick);
+    document.removeEventListener("click", this.onModalBackdropClick);
     document.removeEventListener("keydown", this.onKeydown);
   }
+  $(id) { return document.getElementById(id); }
   openModal(card) {
+    const modal = this.$("assetModal");
+    const imageSlot = this.$("modalImageSlot");
+    if (!modal || !imageSlot) return;
     const slot = card.querySelector("image-slot");
     if (slot) {
       this.activeSlotHome = slot.parentElement;
-      this.modalImageSlot.appendChild(slot);
+      imageSlot.appendChild(slot);
     }
-    this.modalTitle.textContent = card.getAttribute("data-title") || "";
-    this.modalStrategy.textContent = card.getAttribute("data-strategy") || "";
-    this.modalStatus.textContent = card.getAttribute("data-status") || "";
-    this.modalGeography.textContent = card.getAttribute("data-geography") || "";
-    this.modalDesc.textContent = card.getAttribute("data-desc") || "";
-    this.modal.style.display = "flex";
+    const set = (id, attr) => {
+      const el = this.$(id);
+      if (el) el.textContent = card.getAttribute(attr) || "";
+    };
+    set("modalTitle", "data-title");
+    set("modalStrategy", "data-strategy");
+    set("modalStatus", "data-status");
+    set("modalGeography", "data-geography");
+    set("modalDesc", "data-desc");
+    modal.style.display = "flex";
     document.body.style.overflow = "hidden";
   }
   closeModal() {
-    const slot = this.modalImageSlot.firstElementChild;
+    const modal = this.$("assetModal");
+    const imageSlot = this.$("modalImageSlot");
+    const slot = imageSlot && imageSlot.firstElementChild;
     if (slot && this.activeSlotHome) this.activeSlotHome.appendChild(slot);
-    this.modal.style.display = "none";
+    if (modal) modal.style.display = "none";
     document.body.style.overflow = "";
   }
   apply() {
+    const selects = Array.from(document.querySelectorAll("select[data-filter]"));
+    const cards = Array.from(document.querySelectorAll("#assetGrid > a[data-asset]"));
+    this.selects = selects;
+    this.cards = cards;
     const active = {};
-    this.selects.forEach((s) => { if (s.value) active[s.getAttribute("data-filter")] = s.value; });
+    selects.forEach((s) => { if (s.value) active[s.getAttribute("data-filter")] = s.value; });
     const keys = Object.keys(active);
-    const matching = this.cards.filter((c) => keys.every((k) => c.getAttribute("data-" + k) === active[k]));
+    const matching = cards.filter((c) => keys.every((k) => c.getAttribute("data-" + k) === active[k]));
     const n = matching.length;
     /* Every match is shown. The grid used to page at eight and draw a numbered
        pager beneath it; the portfolio is small enough to read in one pass, and
        paging hid most of it behind a control people had to find first. */
-    this.cards.forEach((c) => { c.style.display = "none"; });
+    cards.forEach((c) => { c.style.display = "none"; });
     matching.forEach((c) => { c.style.display = "flex"; });
 
     const count = document.getElementById("resultCount");
-    if (count) count.textContent = n === 1 ? "1 investment" : n + " investments";
+    if (count) count.textContent = keys.length ? (n === 1 ? "1 asset" : n + " assets") : "Some of our assets";
     const empty = document.getElementById("emptyState");
     if (empty) empty.style.display = n ? "none" : "block";
     const clear = document.getElementById("clearFilters");
@@ -383,7 +412,7 @@ class Component extends DCLogic {
   renderVals() {
     return {
       clear: () => {
-        (this.selects || []).forEach((s) => { s.value = ""; });
+        document.querySelectorAll("select[data-filter]").forEach((s) => { s.value = ""; });
         this.apply();
       }
     };

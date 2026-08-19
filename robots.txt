@@ -14,4 +14,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://valad.io/sitemap.xml
+Sitemap: https://www.valadassetmanagement.com/sitemap.xml
