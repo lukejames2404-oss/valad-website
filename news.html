@@ -324,14 +324,20 @@ class Component extends DCLogic {
     this.setupCardReveals("#storyGrid > a, [data-lead]");
     this.setupReveals();
     this.scrubHeadings();
-    this.perPage = 9;
-    this.currentPage = 1;
     this.selects = Array.from(document.querySelectorAll("select[data-filter]"));
     this.cards = Array.from(document.querySelectorAll("#storyGrid [data-story]"));
     this.lead = document.querySelector("[data-lead]");
-    this.onChange = () => { this.currentPage = 1; this.apply(); };
-    this.selects.forEach((s) => s.addEventListener("change", this.onChange));
+    this.onChange = (e) => {
+      if (!e.target || !e.target.matches || !e.target.matches("select[data-filter]")) return;
+      this.apply();
+    };
+    document.addEventListener("change", this.onChange);
     this.apply();
+    /* The runtime commits a render and then re-keys the tree, so the first
+       count is taken against a set that is still short a card -- the label
+       read one fewer than the grid actually showed. Re-run once it settles;
+       apply() re-queries, so a later pass simply corrects the first. */
+    [120, 400, 900].forEach((t) => setTimeout(() => this.apply(), t));
 
     this.modal = document.getElementById("storyModal");
     this.modalImage = document.getElementById("storyModalImage");
@@ -347,7 +353,7 @@ class Component extends DCLogic {
   componentWillUnmount() {
     window.removeEventListener("scroll", this.onScroll);
     if (this.io) this.io.disconnect();
-    if (this.selects) this.selects.forEach((s) => s.removeEventListener("change", this.onChange));
+    document.removeEventListener("change", this.onChange);
     if (this.cards) [this.lead].concat(this.cards).filter(Boolean).forEach((c) => c.removeEventListener("click", this.onCardClick));
     if (this.modal) this.modal.removeEventListener("click", this.onBackdrop);
     document.removeEventListener("keydown", this.onKeydown);
@@ -377,16 +383,23 @@ class Component extends DCLogic {
     document.body.style.overflow = "";
   }
   apply() {
+    /* Re-queried per call rather than trusting what was captured at mount --
+       the nodes counted here have to be the nodes on screen. */
+    const selects = Array.from(document.querySelectorAll("select[data-filter]"));
+    const cards = Array.from(document.querySelectorAll("#storyGrid [data-story]"));
+    this.selects = selects;
+    this.cards = cards;
     const active = {};
-    this.selects.forEach((s) => { if (s.value) active[s.getAttribute("data-filter")] = s.value; });
+    selects.forEach((s) => { if (s.value) active[s.getAttribute("data-filter")] = s.value; });
     const keys = Object.keys(active);
-    const matching = this.cards.filter((c) => keys.every((k) => c.getAttribute("data-" + k) === active[k]));
+    const matching = cards.filter((c) => keys.every((k) => c.getAttribute("data-" + k) === active[k]));
     const n = matching.length;
-    const totalPages = Math.max(1, Math.ceil(n / this.perPage));
-    if (this.currentPage > totalPages) this.currentPage = totalPages;
-    const start = (this.currentPage - 1) * this.perPage;
-    this.cards.forEach((c) => { c.style.display = "none"; });
-    matching.slice(start, start + this.perPage).forEach((c) => { c.style.display = "flex"; });
+    /* Every match is shown. The grid used to page at nine and draw a numbered
+       pager beneath it, but the container that pager renders into is not in
+       the markup, so the remainder had nothing to reach it with. Thirteen
+       stories read fine in one pass -- the same call portfolio.html made. */
+    cards.forEach((c) => { c.style.display = "none"; });
+    matching.forEach((c) => { c.style.display = "flex"; });
 
     const count = document.getElementById("resultCount");
     if (count) count.textContent = n === 1 ? "1 story" : n + " stories";
@@ -394,43 +407,11 @@ class Component extends DCLogic {
     if (empty) empty.style.display = n ? "none" : "block";
     const clear = document.getElementById("clearFilters");
     if (clear) clear.style.display = keys.length ? "block" : "none";
-    this.renderPagination(totalPages);
-  }
-  renderPagination(totalPages) {
-    const wrap = document.getElementById("pagination");
-    if (!wrap) return;
-    wrap.innerHTML = "";
-    if (totalPages <= 1) { wrap.style.display = "none"; return; }
-    wrap.style.display = "flex";
-    const font = "'Saans','Saans Fallback',Helvetica,Arial,sans-serif";
-    const mkBox = (label, disabled, onClick) => {
-      const b = document.createElement("button");
-      b.textContent = label;
-      b.disabled = !!disabled;
-      b.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(20,20,20," + (disabled ? ".12" : ".3") + ");cursor:" + (disabled ? "default" : "pointer") + ";font-size:16px;line-height:1;color:" + (disabled ? "rgba(20,20,20,.25)" : "#141414") + ";padding:0;font-family:" + font;
-      if (!disabled) {
-        b.addEventListener("mouseenter", () => { b.style.background = "rgba(20,20,20,.05)"; });
-        b.addEventListener("mouseleave", () => { b.style.background = "transparent"; });
-        b.addEventListener("click", onClick);
-      }
-      return b;
-    };
-    wrap.appendChild(mkBox("←", this.currentPage === 1, () => { this.currentPage--; this.apply(); }));
-    for (let p = 1; p <= totalPages; p++) {
-      const n = document.createElement("button");
-      n.textContent = String(p);
-      const isActive = p === this.currentPage;
-      n.style.cssText = "background:transparent;border:none;padding:8px 4px;cursor:pointer;font-size:16px;letter-spacing:0px;font-family:" + font + ";color:" + (isActive ? "#141414" : "rgba(20,20,20,.35)") + ";font-weight:300";
-      n.addEventListener("click", () => { this.currentPage = p; this.apply(); });
-      wrap.appendChild(n);
-    }
-    wrap.appendChild(mkBox("→", this.currentPage === totalPages, () => { this.currentPage++; this.apply(); }));
   }
   renderVals() {
     return {
       clear: () => {
-        (this.selects || []).forEach((s) => { s.value = ""; });
-        this.currentPage = 1;
+        document.querySelectorAll("select[data-filter]").forEach((s) => { s.value = ""; });
         this.apply();
       }
     };
